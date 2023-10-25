@@ -7,4 +7,4 @@
 
 **Dependency management:** Apache Maven
 
-**Overview:** This project is a test application for OpenGL rendering.
+**Overview:** This project is a test application for OpenGL rendering via LWJGL (Lightweight Java Game Library).

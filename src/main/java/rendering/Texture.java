@@ -38,7 +38,9 @@ public class Texture {
     // CONSTRUCTORS
     /**
      * Constructs a Texture instance.
-     * The texture at the provided file path is loaded and prepared upon construction.
+     * The texture at the provided file path is prepared and uploaded to the GPU upon construction.
+     * Note that as many textures as desired can be uploaded to the GPU as long as memory permits.
+     * This should not be confused with the number of slots available for binding on the GPU for texture sampling.
      *
      * @param filePath file path of texture from resources directory
      */
@@ -63,15 +65,15 @@ public class Texture {
         // Load image.
         IntBuffer width = BufferUtils.createIntBuffer(1);
         IntBuffer height = BufferUtils.createIntBuffer(1);
-        IntBuffer channels = BufferUtils.createIntBuffer(1);  // rgb or rgba.
+        IntBuffer channels = BufferUtils.createIntBuffer(1);                                                            // rgb or rgba.
 //        stbi_set_flip_vertically_on_load(true);  // Load image upside-down.
         ByteBuffer image = stbi_load(filePath, width, height, channels, 0);
         if (image != null) {
             if (channels.get(0) == 3) {                                                                                 // rbg image.
-                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width.get(0), height.get(0),
+                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width.get(0), height.get(0),                                     // Upload image to GPU.
                         0, GL_RGB, GL_UNSIGNED_BYTE, image);
             } else if (channels.get(0) == 4) {                                                                          // rgba image.
-                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width.get(0), height.get(0),
+                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width.get(0), height.get(0),                                    // Upload image to GPU.
                         0, GL_RGBA, GL_UNSIGNED_BYTE, image);
             } else {
                 // TODO : Throw new AssetLoadException in actual program here.
@@ -90,7 +92,7 @@ public class Texture {
 
     /**
      * Constructs a Texture instance.
-     * An empty texture is prepared upon construction.
+     * An empty texture is prepared and allocated on the GPU upon construction.
      *
      * @param width texture width
      * @param height texture height
@@ -113,6 +115,9 @@ public class Texture {
     // METHODS
     /**
      * Binds this texture to be used when drawing.
+     * When binding, a shader is told where to find a texture that's been uploaded to the GPU via its texture ID.
+     * This texture is bound to a slot on the GPU.
+     * Inside a shader, the texture can then be retrieved from that slot and sampled to draw.
      */
     public void bind() {
 

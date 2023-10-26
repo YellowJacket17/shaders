@@ -106,12 +106,18 @@ public class RenderBatch {
     private float[] vertices;
 
     /**
-     * Slots available to store textures in this batch.
+     * Slots available to bind textures for sampling during a draw in this batch.
+     * Here, the number available is limited eight textures to ensure that lower-end GPUs are supported, even though
+     * OpenGL specifies a minimum of 16 available slots.
+     * This will index into the appropriate texture from the textures list.
+     * In other words, this correlates directly to the textures in the textures list being bound in the GPU.
+     * Note that slot zero is reserved for the empty texture.
      */
     private int[] textureSlots = {0, 1, 2, 3, 4, 5, 6, 7};
 
     /**
-     * List to store the textures attached to this batch.
+     * List to store the textures available in this batch.
+     * As a reminder, a texture is an entire spritesheet, while a sprite is a section of a spritesheet (i.e., texture).
      */
     private List<Texture> textures;
 
@@ -223,12 +229,12 @@ public class RenderBatch {
         shader.uploadMat4f("uProjection", gp.getCamera().getProjectionMatrix());
         shader.uploadMat4f("uView", gp.getCamera().getViewMatrix());
 
-        // Bind texture.
+        // Bind textures.
         for (int i = 0; i < textures.size(); i++) {
-            glActiveTexture(GL_TEXTURE0 + i + 1);  // Activate texture in appropriate slot; slot zero is reserved for no texture.
+            glActiveTexture(GL_TEXTURE0 + i + 1);                                                                       // Activate texture in appropriate slot; slot zero is reserved for the empty texture.
             textures.get(i).bind();
         }
-        shader.uploadIntArray("uTextures", textureSlots);
+        shader.uploadIntArray("uTextures", textureSlots);                                                               // Use multiple textures in shader (up to seven plus the empty texture).
 
         // Bind VAO being used.
         glBindVertexArray(vaoId);
@@ -243,8 +249,8 @@ public class RenderBatch {
         // Unbind after drawing.
         glDisableVertexAttribArray(0);
         glDisableVertexAttribArray(1);
-        glBindVertexArray(0);    // 0 is a flag that states to bind nothing.
-        shader.detach();  // Detach shader program.
+        glBindVertexArray(0);                                                                                           // 0 is a flag that states to bind nothing.
+        shader.detach();                                                                                                // Detach shader program.
         for (int i = 0; i < textures.size(); i++) {
             textures.get(i).unbind();
         }
@@ -341,9 +347,9 @@ public class RenderBatch {
         Vector2f[] textureCoords = drawable.getTextureCoords();
         int textureId = 0;
         if (drawable.getTexture() != null) {
-            for (int i = 0; i < textures.size(); i++) {
+            for (int i = 0; i < textures.size(); i++) {                                                                 // Find the texture ID; loop through all textures in the batch until we find a match, then assign corresponding ID.
                 if (textures.get(i).equals(drawable.getTexture())) {                                                    // Use `.equals()` because == only compares memory address of two objects, not actual contents.
-                    textureId = i + 1;                                                                                  // Texture slot 0 is reserved for no bound texture to sprite.
+                    textureId = i + 1;                                                                                  // Texture slot 0 is reserved for no bound texture to sprite, hence why one is added.
                     break;
                 }
             }

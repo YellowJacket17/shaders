@@ -248,6 +248,7 @@ public class Shader {
 
     /**
      * Uploads a texture to this shader.
+     * When uploading a texture, we're really just uploading an integer.
      *
      * @param varName name of target variable in this shader to upload to
      * @param slot slot of texture to upload

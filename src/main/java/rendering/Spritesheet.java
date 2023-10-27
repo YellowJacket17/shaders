@@ -13,12 +13,12 @@ public class Spritesheet {
     /**
      * Parent texture of this spritesheet.
      */
-    private Texture texture;
+    private final Texture texture;
 
     /**
      * List to store all sprites derived from this spritesheet.
      */
-    private ArrayList<Sprite> sprites;
+    private final ArrayList<Sprite> sprites;
 
 
     // CONSTRUCTOR

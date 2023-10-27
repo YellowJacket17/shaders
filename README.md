@@ -10,5 +10,8 @@
 **Overview:** This project is a test application for OpenGL rendering via LWJGL (Lightweight Java Game Library).
 
 ## Notes ##
+Only Windows is supported.
+Additional dependencies must be added for additional operating systems.
+
 Special thanks to Gabriel Ambrosio for the excellent video series on game development in Java (YouTube channel GamesWithGabe).
 This project would not have been possible without it.

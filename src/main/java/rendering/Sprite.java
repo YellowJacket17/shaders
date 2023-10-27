@@ -14,7 +14,9 @@ public class Sprite {
     private Texture texture;
 
     /**
-     * Coordinates of sprite on parent texture (bottom-left coordinate).
+     * Coordinates of sprite on parent texture.
+     * Note that texture coordinates are normalized from zero to one, where (0, 0) is the bottom-left corner of the
+     * texture and (1, 1) is the top-right corner.
      */
     private Vector2f[] textureCoords;
 
@@ -51,7 +53,7 @@ public class Sprite {
      * Constructs a Sprite instance.
      *
      * @param texture parent texture of sprite
-     * @param textureCoords coordinates of sprite on parent texture (bottom-left coordinate)
+     * @param textureCoords coordinates of sprite on parent texture
      * @param spriteWidth native sprite width
      * @param spriteHeight native sprite height
      */

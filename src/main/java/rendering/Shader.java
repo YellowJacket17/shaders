@@ -19,10 +19,29 @@ import static org.lwjgl.opengl.GL20.glGetShaderInfoLog;
 public class Shader {
 
     // FIELDS
+    /**
+     * Shader ID.
+     */
     private int shaderProgramId;
+
+    /**
+     * Vertex from this shader.
+     */
     private String vertexSource;
+
+    /**
+     * Fragment from this shader.
+     */
     private String fragmentSource;
+
+    /**
+     * Shader file path.
+     */
     private final String filePath;
+
+    /**
+     * Boolean indicating whether this shader is currently in use or not.
+     */
     private boolean inUse = false;
 
 

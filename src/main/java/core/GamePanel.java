@@ -2,6 +2,7 @@ package core;
 
 import rendering.*;
 import org.joml.Vector2f;
+import rendering.drawable.Drawable;
 import utilities.AssetPool;
 
 import java.util.ArrayList;
@@ -17,10 +18,38 @@ public class GamePanel  {
      */
     private final Renderer renderer = new Renderer(this);
 
+
+    // SCREEN SETTINGS
     /**
      * Game camera.
      */
-    private final Camera camera = new Camera(new Vector2f());
+    private Camera camera;
+
+    /**
+     * Native tile size of rendered tiles.
+     * Tiles are the same width and height.
+     */
+    private final int nativeTileSize = 32;
+
+    /**
+     * Tiles per column in the screen space.
+     */
+    private final int maxScreenCol = 24; //40
+
+    /**
+     * Tiles per row in the screen space.
+     */
+    private final int maxScreenRow = 14; //21
+
+    /**
+     * Native screen width as determined by the native tile size and number of columns.
+     */
+    private final int nativeScreenWidth = nativeTileSize * maxScreenCol;
+
+    /**
+     * Native screen height as determined by the native tile size and number of rows.
+     */
+    private final int nativeScreenHeight = nativeTileSize * maxScreenRow;
 
 
     // GAME OBJECTS
@@ -45,6 +74,7 @@ public class GamePanel  {
      */
     public void init() {
 
+        camera = new Camera(nativeScreenWidth, nativeScreenHeight, new Vector2f());
         loadResources();
         initGameObjects();
     }
@@ -107,7 +137,7 @@ public class GamePanel  {
 
         gameObject1.transform.position.x += 2;
 
-        camera.adjustProjection();
+        renderer.addStringToBatch("Hello, World! g p", 0, 0, 0.5f, 0xFF01BB, "Arimo");
 
         // Update each game object.
         for (Drawable gameObject : gameObjects) {

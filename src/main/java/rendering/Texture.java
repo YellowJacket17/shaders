@@ -67,14 +67,14 @@ public class Texture {
         IntBuffer height = BufferUtils.createIntBuffer(1);
         IntBuffer channels = BufferUtils.createIntBuffer(1);                                                            // rgb or rgba.
 //        stbi_set_flip_vertically_on_load(true);  // Load image upside-down.
-        ByteBuffer image = stbi_load(filePath, width, height, channels, 0);
-        if (image != null) {
+        ByteBuffer buffer = stbi_load(filePath, width, height, channels, 0);
+        if (buffer != null) {
             if (channels.get(0) == 3) {                                                                                 // rbg image.
                 glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width.get(0), height.get(0),                                     // Upload image to GPU.
-                        0, GL_RGB, GL_UNSIGNED_BYTE, image);
+                        0, GL_RGB, GL_UNSIGNED_BYTE, buffer);
             } else if (channels.get(0) == 4) {                                                                          // rgba image.
                 glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width.get(0), height.get(0),                                    // Upload image to GPU.
-                        0, GL_RGBA, GL_UNSIGNED_BYTE, image);
+                        0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
             } else {
                 // TODO : Throw new AssetLoadException in actual program here.
                 throw new RuntimeException("Unexpected number of channels (" + channels.get(0)
@@ -86,7 +86,7 @@ public class Texture {
             // TODO : Throw new AssetLoadException in actual program here.
             throw new RuntimeException("Failed to load image for texture from " + filePath);
         }
-        stbi_image_free(image);                                                                                         // Free memory, since image has now been uploaded to GPU.
+        stbi_image_free(buffer);                                                                                         // Free memory, since image has now been uploaded to GPU.
     }
 
 

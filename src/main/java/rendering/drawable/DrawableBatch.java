@@ -1,8 +1,11 @@
-package rendering;
+package rendering.drawable;
 
 import core.GamePanel;
 import org.joml.Vector2f;
 import org.joml.Vector4f;
+import rendering.Shader;
+import rendering.Texture;
+import rendering.drawable.Drawable;
 import utilities.AssetPool;
 
 import java.util.ArrayList;
@@ -17,7 +20,7 @@ import static org.lwjgl.opengl.GL30.glGenVertexArrays;
 /**
  * This class holds a batch of Drawable instances to be sent to the GPU and rendered in a single call.
  */
-public class RenderBatch {
+public class DrawableBatch {
 
     /*
      * Vertex array
@@ -149,12 +152,12 @@ public class RenderBatch {
      * @param gp GamePanel instance
      * @param maxBatchSize maximum number of drawables allowed in this batch
      */
-    public RenderBatch(GamePanel gp, int maxBatchSize) {
+    public DrawableBatch(GamePanel gp, int maxBatchSize) {
         this.gp = gp;
         this.shader = AssetPool.getShader("/shaders/default.glsl");
         this.drawables = new Drawable[maxBatchSize];
         this.maxBatchSize = maxBatchSize;
-        this.vertices = new float[maxBatchSize * 4 * vertexSize]; // 4 vertices per quad
+        this.vertices = new float[maxBatchSize * 4 * vertexSize];                                                       // 4 vertices per quad.
         this.numDrawables = 0;
         this.hasRoom = true;
         this.textures = new ArrayList<>();

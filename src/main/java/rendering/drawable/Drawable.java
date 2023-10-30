@@ -1,8 +1,10 @@
-package rendering;
+package rendering.drawable;
 
 import core.Transform;
 import org.joml.Vector2f;
 import org.joml.Vector4f;
+import rendering.Sprite;
+import rendering.Texture;
 
 /**
  * This class represents a game object that can be rendered to the screen.

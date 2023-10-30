@@ -34,7 +34,7 @@ public class Camera {
      * The normalized coordinates are what are actually drawn on screen.
      */
 
-    // BASIC FIELDS
+    // FIELDS
     /**
      * Projection matrix.
      * The projection matrix determines how large the screen space is.
@@ -54,42 +54,30 @@ public class Camera {
      */
     private Vector2f position;
 
-
-    // SCREEN SETTINGS
     /**
-     * Native tile size of rendered tiles.
-     * Tiles are the same width and height.
+     * Visible screen width.
+     * Note that this are NOT necessarily pixels being defined: it's our own screen coordinate system.
      */
-    private final int nativeTileSize = 32;
+    private int screenWidth;
 
     /**
-     * Tiles per column in the screen space.
+     * Visible screen height.
+     * Note that this are NOT pixels necessarily being defined: it's our own screen coordinate system.
      */
-    private final int maxScreenCol = 40; //24
-
-    /**
-     * Tiles per row in the screen space.
-     */
-    private final int maxScreenRow = 21;  //14
-
-    /**
-     * Native screen width as determined by the native tile size and number of columns.
-     */
-    private final int nativeScreenWidth = nativeTileSize * maxScreenCol;
-
-    /**
-     * Native screen height as determined by the native tile size and number of rows.
-     */
-    private final int nativeScreenHeight = nativeTileSize * maxScreenRow;
+    private int screenHeight;
 
 
     // CONSTRUCTOR
     /**
      * Constructs a Camera instance.
      *
+     * @param screenWidth visible screen width (NOT necessarily pixels but some amount of units)
+     * @param screenHeight visible screen height (NOT necessarily pixels but some amount of units)
      * @param position initial camera position (bottom-left coordinate)
      */
-    public Camera(Vector2f position) {
+    public Camera(int screenWidth, int screenHeight, Vector2f position) {
+        this.screenWidth = screenWidth;
+        this.screenHeight = screenHeight;
         this.position = position;
         this.projectionMatrix = new Matrix4f();
         this.viewMatrix = new Matrix4f();
@@ -104,8 +92,18 @@ public class Camera {
     public void adjustProjection() {
 
         projectionMatrix.identity();                                                                                    // Sets the projection matrix to equal the identity matrix.
-//        projectionMatrix.ortho(0.0f, (float)nativeScreenWidth, 0.0f,  (float)nativeScreenHeight, 0.0f, 100.0f);  // Default form tutorial!
-        projectionMatrix.ortho(0.0f, (float)nativeScreenWidth, (float)nativeScreenHeight, 0.0f, 0.0f, 100.0f);          // These are NOT pixels being defined; it's our own screen coordinate system.
+        projectionMatrix.ortho(0.0f, (float) screenWidth, (float) screenHeight, 0.0f, 0.0f, 100.0f);                    // Screen coordinate (0, 0) is defined at the top-left.
+    }
+
+
+    /**
+     * Retrieves the projection matrix, which is an orthographic matrix of fixed perspective.
+     *
+     * @return perspective matrix
+     */
+    public Matrix4f getProjectionMatrix() {
+
+        return this.projectionMatrix;
     }
 
 
@@ -123,16 +121,5 @@ public class Camera {
                                             cameraFront.add(position.x, position.y, 0.0f),
                                             cameraUp);                                                                  // Modifies the view matrix directly.
         return viewMatrix;
-    }
-
-
-    /**
-     * Retrieves the projection matrix, which is an orthographic matrix of fixed perspective.
-     *
-     * @return perspective matrix
-     */
-    public Matrix4f getProjectionMatrix() {
-
-        return this.projectionMatrix;
     }
 }

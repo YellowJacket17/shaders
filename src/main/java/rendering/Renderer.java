@@ -1,9 +1,14 @@
 package rendering;
 
 import core.GamePanel;
+import rendering.drawable.Drawable;
+import rendering.drawable.DrawableBatch;
+import rendering.font.CFont;
+import rendering.font.FontBatch;
+import rendering.font.Text;
 
 import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
 
 /**
  * This class manages the rendering of drawable objects (i.e., sending instructions to the GPU).
@@ -16,12 +21,27 @@ public class Renderer {
     /**
      * Maximum number of drawables allowed per render batch.
      */
-    private final int maxBatchSize = 1000;
+    private final int maxDrawableBatchSize = 1000;
 
     /**
-     * List to store render batches.
+     * List to store drawable batches to render.
      */
-    private List<RenderBatch> batches;
+    private final ArrayList<DrawableBatch> drawableBatches  = new ArrayList<>();
+
+    /**
+     * List to store font batches to render.
+     */
+    private final FontBatch fontBatch = new FontBatch();
+
+    /**
+     * List to store staged text to render.
+     */
+    private final ArrayList<Text> stagedText = new ArrayList<>();
+
+    /**
+     * Map to store loaded fonts; font name is the key, font is the value.
+     */
+    private final HashMap<String, CFont> fonts = new HashMap<>();
 
 
     // CONSTRUCTOR
@@ -32,7 +52,8 @@ public class Renderer {
      */
     public Renderer(GamePanel gp) {
         this.gp = gp;
-        this.batches = new ArrayList<>();
+        this.fontBatch.init();
+        initializeFonts();
     }
 
 
@@ -52,13 +73,20 @@ public class Renderer {
 
 
     /**
-     * Renders all added drawables.
+     * Renders all added drawables and fonts.
      */
     public void render() {
 
-        for (RenderBatch batch : batches) {
+        for (DrawableBatch batch : drawableBatches) {
 
             batch.render();
+        }
+
+        for (Text text : stagedText) {
+
+            fontBatch.setFont(fonts.get(text.getFont()));
+            fontBatch.addString(text.getText(), text.getScreenX(), text.getScreenY(), text.getScale(), text.getRgb());
+            fontBatch.flush();                                                                                          // Must flush at the end of the frame to actually render entire batch.
         }
     }
 
@@ -72,7 +100,7 @@ public class Renderer {
 
         boolean added = false;
 
-        for (RenderBatch batch : batches) {
+        for (DrawableBatch batch : drawableBatches) {
 
             if (batch.hasRoom()) {
 
@@ -89,10 +117,39 @@ public class Renderer {
 
         if (!added) {
 
-            RenderBatch newBatch = new RenderBatch(gp, maxBatchSize);
+            DrawableBatch newBatch = new DrawableBatch(gp, maxDrawableBatchSize);
             newBatch.init();
-            batches.add(newBatch);
+            drawableBatches.add(newBatch);
             newBatch.addDrawable(drawable);
         }
+    }
+
+
+    /**
+     * Adds a string of characters to the render pipeline.
+     *
+     * @param text text to add
+     * @param screenX x-coordinate (leftmost)
+     * @param screenY y-coordinate (topmost)
+     * @param scale scale factor compared to native font size
+     * @param rgb color in hexadecimal format
+     * @param font name of font to use
+     */
+    public void addStringToBatch(String text, int screenX, int screenY, float scale, int rgb, String font) {
+
+        stagedText.add(new Text(text, screenX, screenY, scale, rgb, font));
+    }
+
+
+    /**
+     * Loads available fonts.
+     */
+    private void initializeFonts() {
+
+        CFont font = new CFont("/fonts/Arimo-mO92.ttf", 128);
+        fonts.put(font.getName(), font);
+
+        font = new CFont("/fonts/ArimoBold-dVDx.ttf", 128);
+        fonts.put(font.getName(), font);
     }
 }

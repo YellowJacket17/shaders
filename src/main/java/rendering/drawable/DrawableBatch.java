@@ -8,7 +8,6 @@ import rendering.Texture;
 import utilities.AssetPool;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import static org.lwjgl.opengl.GL15.*;
 import static org.lwjgl.opengl.GL20.*;
@@ -131,11 +130,12 @@ public class DrawableBatch {
      */
     private final int[] textureSlots = {0, 1, 2, 3, 4, 5, 6, 7};
 
+    // TODO : Change textures to be a LimitedArrayList with maximum size of eight.
     /**
      * List to store the textures available in this batch.
      * As a reminder, a texture is an entire spritesheet, while a sprite is a section of a spritesheet (i.e., texture).
      */
-    private final List<Texture> textures = new ArrayList<>();;
+    private final ArrayList<Texture> textures = new ArrayList<>();;
 
     /**
      * Shader attached to this batch.

@@ -69,7 +69,7 @@ public class Drawable {
      *
      * @param name name of this drawable
      * @param color color of this drawable
-     * @param transform position and scale of this drawable
+     * @param transform position (top-left coordinate) and scale (width and height) of this drawable
      */
     public Drawable(String name, Vector4f color, Transform transform) {
         this.name = name;
@@ -85,7 +85,7 @@ public class Drawable {
      *
      * @param name name of this drawable
      * @param sprite sprite of this drawable
-     * @param transform position and scale of this drawable
+     * @param transform position (top-left coordinate) and scale (width and height) of this drawable
      */
     public Drawable(String name, Transform transform, Sprite sprite) {
         this.name = name;

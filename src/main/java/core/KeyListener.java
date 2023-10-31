@@ -51,12 +51,20 @@ public class KeyListener {
      */
     public static void keyCallback(long window, int key, int scancode, int action, int mods) {
 
-        if (action == GLFW_PRESS) {                                                                                     // If key pressed.
+        try {
 
-            get().keyPressed[key] = true;
-        } else if (action == GLFW_RELEASE) {                                                                            // If key released.
+            if (action == GLFW_PRESS) {                                                                                 // If key pressed.
 
-            get().keyPressed[key] = false;
+                get().keyPressed[key] = true;
+            } else if (action == GLFW_RELEASE) {                                                                        // If key released.
+
+                get().keyPressed[key] = false;
+            }
+
+        } catch (ArrayIndexOutOfBoundsException e) {
+
+            // TODO : Log warning here.
+            System.out.println("Unrecognized key with key code " + key + ".");
         }
     }
 

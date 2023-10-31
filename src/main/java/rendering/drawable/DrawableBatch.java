@@ -5,7 +5,6 @@ import org.joml.Vector2f;
 import org.joml.Vector4f;
 import rendering.Shader;
 import rendering.Texture;
-import rendering.drawable.Drawable;
 import utilities.AssetPool;
 
 import java.util.ArrayList;
@@ -23,8 +22,8 @@ import static org.lwjgl.opengl.GL30.glGenVertexArrays;
 public class DrawableBatch {
 
     /*
-     * Vertex array
-     * ============
+     * Vertex in Vertex Array
+     * ======================
      * Position         Color                          Texture coordinates     Texture ID
      * float, float,    float, float, float, float,    float, float, float,    float
      */
@@ -33,96 +32,84 @@ public class DrawableBatch {
     private final GamePanel gp;
 
     /**
-     * Defines two position indices in the vertex array.
+     * Defines two position floats in the vertex array for each vertex.
      */
     private final int positionSize = 2;
 
     /**
-     * Defines four color indices in the vertex array.
+     * Defines four color floats in the vertex array for each vertex.
      */
     private final int colorSize = 4;
 
     /**
-     * Defines two texture coordinate indices in the vertex array.
+     * Defines two texture coordinate floats in the vertex array for each vertex.
      */
     private final int textureCoordsSize = 2;
 
     /**
-     * Defines one texture ID index in the vertex array.
+     * Defines one texture ID float in the vertex array for each vertex.
      */
     private final int textureIdSize = 1;
 
     /**
-     * Defines the offset (in bytes) of the start of the position indices in the vertex array.
-     * Here, the position starts at the beginning of the vertex array, so it has zero offset.
+     * Defines the offset (in bytes) of the start of the position floats in the vertex array for each vertex.
+     * Here, the position starts at the beginning of a vertex definition, so it has zero offset.
      */
     private final int positionOffset = 0;
 
     /**
-     * Defines the offset (in bytes) of the start of the color indices in the vertex array.
-     * Here, the color starts after the position in the vertex array, so it has an offset determined by the position.
+     * Defines the offset (in bytes) of the start of the color floats in the vertex array for each vertex.
+     * Here, the color starts after the position in a vertex definition, so it has an offset determined by the position.
      */
     private final int colorOffset = positionOffset + positionSize * Float.BYTES;
 
     /**
-     * Defines the offset (in bytes) of the start of the texture coordinate indices in the vertex array.
-     * Here, the texture coordinates start after the color in the vertex array, so it has an offset determined by the
+     * Defines the offset (in bytes) of the start of the texture coordinate floats in the vertex array for each vertex.
+     * Here, the texture coordinates start after the color in a vertex definition, so it has an offset determined by the
      * color.
      */
     private final int textureCoordsOffset = colorOffset + colorSize * Float.BYTES;
 
     /**
-     * Defines the offset (in bytes) of the start of the texture ID index in the vertex array.
-     * Here, the texture ID starts after the texture coordinates in the vertex array, so it has an offset determined by
-     * the texture coordinates.
+     * Defines the offset (in bytes) of the start of the texture ID float in the vertex array for each vertex.
+     * Here, the texture ID starts after the texture coordinates in a vertex definition, so it has an offset determined
+     * by the texture coordinates.
      */
     private final int textureIdOffset = textureCoordsOffset + textureCoordsSize * Float.BYTES;
 
     /**
-     * Total number of indices in the vertex array.
+     * Maximum number of drawables that can be added to this batch.
      */
-    private final int vertexSize = 9;
+    private int maxBatchSize = 1000;
 
     /**
-     * Size of the vertex array in bytes.
-     */
-    private final int vertexSizeBytes = vertexSize * Float.BYTES;
-
-    /**
-     * Array to store drawables that will be rendered with this batch.
-     */
-    private Drawable[] drawables;
-
-    /**
-     * Number of drawables added to the array of drawables thus far.
+     * Actual number of drawables added to this batch (array of drawables) thus far.
      */
     private int numDrawables;
 
     /**
+     * Array to store drawables that will be rendered with this batch.
+     */
+    private final Drawable[] drawables = new Drawable[maxBatchSize];
+
+    /**
      * Boolean indicating whether any more drawables can be added to this batch.
      */
-    private boolean hasRoom;
+    private boolean hasRoom = true;
+
+    /**
+     * Total number of floats in each vertex of the vertex array.
+     * Remember that a vertex represent a corner of a quad being rendered in this case.
+     */
+    private final int vertexSize = 9;
 
     /**
      * Vertex array.
+     * Note that there are four vertices per quad.
+     * We would like to a number of drawables equal to the maximum batch size, hence the multiplication by four.
+     * Each drawable to render requires a quad.
      */
-    private float[] vertices;
-
-    /**
-     * Slots available to bind textures for sampling during a draw in this batch.
-     * Here, the number available is limited eight textures to ensure that lower-end GPUs are supported, even though
-     * OpenGL specifies a minimum of 16 available slots.
-     * This will index into the appropriate texture from the textures list.
-     * In other words, this correlates directly to the textures in the textures list being bound in the GPU.
-     * Note that slot zero is reserved for the empty texture.
-     */
-    private int[] textureSlots = {0, 1, 2, 3, 4, 5, 6, 7};
-
-    /**
-     * List to store the textures available in this batch.
-     * As a reminder, a texture is an entire spritesheet, while a sprite is a section of a spritesheet (i.e., texture).
-     */
-    private List<Texture> textures;
+    private final float[] vertices = new float[maxBatchSize * 4 * vertexSize];
 
     /**
      * Vertex array object ID.
@@ -135,14 +122,25 @@ public class DrawableBatch {
     private int vboId;
 
     /**
-     * Maximum number of drawables that can be added to this batch.
+     * Slots available to bind textures for sampling during a draw in this batch.
+     * Here, the number available is limited eight textures to ensure that lower-end GPUs are supported, even though
+     * OpenGL specifies a minimum of 16 available slots.
+     * This will index into the appropriate texture from the textures list.
+     * In other words, this correlates directly to the textures in the textures list being bound in the GPU.
+     * Note that slot zero is reserved for the empty texture.
      */
-    private int maxBatchSize;
+    private final int[] textureSlots = {0, 1, 2, 3, 4, 5, 6, 7};
+
+    /**
+     * List to store the textures available in this batch.
+     * As a reminder, a texture is an entire spritesheet, while a sprite is a section of a spritesheet (i.e., texture).
+     */
+    private final List<Texture> textures = new ArrayList<>();;
 
     /**
      * Shader attached to this batch.
      */
-    private Shader shader;
+    private final Shader shader;
 
 
     // CONSTRUCTOR
@@ -150,17 +148,10 @@ public class DrawableBatch {
      * Constructs a BatchRenderer instance.
      *
      * @param gp GamePanel instance
-     * @param maxBatchSize maximum number of drawables allowed in this batch
      */
-    public DrawableBatch(GamePanel gp, int maxBatchSize) {
+    public DrawableBatch(GamePanel gp) {
         this.gp = gp;
         this.shader = AssetPool.getShader("/shaders/default.glsl");
-        this.drawables = new Drawable[maxBatchSize];
-        this.maxBatchSize = maxBatchSize;
-        this.vertices = new float[maxBatchSize * 4 * vertexSize];                                                       // 4 vertices per quad.
-        this.numDrawables = 0;
-        this.hasRoom = true;
-        this.textures = new ArrayList<>();
     }
 
 
@@ -188,13 +179,14 @@ public class DrawableBatch {
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices, GL_STATIC_DRAW);
 
         // Enable buffer attribute pointers.
-        glVertexAttribPointer(0, positionSize, GL_FLOAT, false, vertexSizeBytes, positionOffset);
+        int stride = vertexSize * Float.BYTES;                                                                          // Size of the vertex array in bytes.
+        glVertexAttribPointer(0, positionSize, GL_FLOAT, false, stride, positionOffset);
         glEnableVertexAttribArray(0);
-        glVertexAttribPointer(1, colorSize, GL_FLOAT, false, vertexSizeBytes, colorOffset);
+        glVertexAttribPointer(1, colorSize, GL_FLOAT, false, stride, colorOffset);
         glEnableVertexAttribArray(1);
-        glVertexAttribPointer(2, textureCoordsSize, GL_FLOAT, false, vertexSizeBytes, textureCoordsOffset);
+        glVertexAttribPointer(2, textureCoordsSize, GL_FLOAT, false, stride, textureCoordsOffset);
         glEnableVertexAttribArray(2);
-        glVertexAttribPointer(3, textureIdSize, GL_FLOAT, false, vertexSizeBytes, textureIdOffset);
+        glVertexAttribPointer(3, textureIdSize, GL_FLOAT, false, stride, textureIdOffset);
         glEnableVertexAttribArray(3);
     }
 

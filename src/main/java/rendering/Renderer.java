@@ -19,11 +19,6 @@ public class Renderer {
     private final GamePanel gp;
 
     /**
-     * Maximum number of drawables allowed per render batch.
-     */
-    private final int maxDrawableBatchSize = 1000;
-
-    /**
      * List to store drawable batches to render.
      */
     private final ArrayList<DrawableBatch> drawableBatches  = new ArrayList<>();
@@ -31,7 +26,7 @@ public class Renderer {
     /**
      * List to store font batches to render.
      */
-    private final FontBatch fontBatch = new FontBatch();
+    private final FontBatch fontBatch;
 
     /**
      * List to store staged text to render.
@@ -52,6 +47,7 @@ public class Renderer {
      */
     public Renderer(GamePanel gp) {
         this.gp = gp;
+        this.fontBatch = new FontBatch(gp);
         this.fontBatch.init();
         initializeFonts();
     }
@@ -88,6 +84,7 @@ public class Renderer {
             fontBatch.addString(text.getText(), text.getScreenX(), text.getScreenY(), text.getScale(), text.getRgb());
             fontBatch.flush();                                                                                          // Must flush at the end of the frame to actually render entire batch.
         }
+        stagedText.clear();                                                                                             // Remove all staged text as it has already been rendered.
     }
 
 
@@ -117,7 +114,7 @@ public class Renderer {
 
         if (!added) {
 
-            DrawableBatch newBatch = new DrawableBatch(gp, maxDrawableBatchSize);
+            DrawableBatch newBatch = new DrawableBatch(gp);
             newBatch.init();
             drawableBatches.add(newBatch);
             newBatch.addDrawable(drawable);
@@ -132,7 +129,7 @@ public class Renderer {
      * @param screenX x-coordinate (leftmost)
      * @param screenY y-coordinate (topmost)
      * @param scale scale factor compared to native font size
-     * @param rgb color in hexadecimal format
+     * @param rgb color in hexadecimal format; 0x00000000 produces black text with transparent background
      * @param font name of font to use
      */
     public void addStringToBatch(String text, int screenX, int screenY, float scale, int rgb, String font) {

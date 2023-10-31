@@ -1,9 +1,7 @@
 package rendering.font;
 
+import core.GamePanel;
 import rendering.Shader;
-import rendering.font.CFont;
-import rendering.font.CharInfo;
-import org.joml.Matrix4f;
 import utilities.AssetPool;
 
 import static org.lwjgl.opengl.GL15.*;
@@ -18,39 +16,39 @@ import static org.lwjgl.opengl.GL30.glGenVertexArrays;
 public class FontBatch {
 
     // FIELDS
-    /**
-     * Base vertex indices.
-     */
-    private int[] indices = {
-            0, 1, 3,
-            1, 2, 3
-    };
+    private final GamePanel gp;
 
     /**
-     * Number of vertices that can be stored in this batch.
+     * Maximum number of vertices that can be added to this batch.
      * As an aside, 100 vertices equals 25 quads.
      */
-    private final int batchSize = 100;
+    private final int maxBatchSize = 100;
 
     /**
-     * Total number of indices in the vertex array.
+     * Actual number of vertices added to this batch (vertex array) thus far.
+     */
+    private int numVertices;
+
+    /**
+     * Total number of floats in each vertex of the vertex array.
      */
     private final int vertexSize = 7;
 
     /**
      * Vertex array.
+     * Note that this allows us to store a number of quads equal to the maximum batch size divided by four, since each
+     * quad contains four vertices.
+     * Each character to render requires a quad.
      */
-    private float[] vertices = new float[batchSize * vertexSize];
+    private final float[] vertices = new float[maxBatchSize * vertexSize];
 
     /**
-     * Actual number of vertices stored in this batch.
+     * Base indices for generating a quad.
      */
-    private int size = 0;
-
-    /**
-     * Projection matrix for shader purposes.
-     */
-    private Matrix4f projection = new Matrix4f();
+    private final int[] indices = {
+            0, 1, 3,
+            1, 2, 3
+    };
 
     /**
      * Vertex array object ID.
@@ -63,12 +61,13 @@ public class FontBatch {
     private int vboId;
 
     /**
-     * rendering.Shader attached to this batch.
+     * Shader attached to this batch.
      */
-    private Shader shader;
+    private final Shader shader;
 
     /**
-     * Font used in this batch.
+     * Active font in this batch.
+     * This is the font used to render text.
      */
     private CFont font;
 
@@ -77,7 +76,8 @@ public class FontBatch {
     /**
      * Constructs a FontBatch instance.
      */
-    public FontBatch() {
+    public FontBatch(GamePanel gp) {
+        this.gp = gp;
         this.shader = AssetPool.getShader("/shaders/font.glsl");
     }
 
@@ -90,10 +90,6 @@ public class FontBatch {
      */
     public void init() {
 
-        // Initialize projection matrix.
-        projection.identity();                                                                                          // Sets the projection matrix to equal the identity matrix.
-        projection.ortho(0, 800, 600, 0, 1f, 100f);                                                                     // Treat screen as if it's 800 x 600 pixels tall with positive Y down.
-
         // Generate and bind a vertex array object.
         vaoId = glGenVertexArrays();
         glBindVertexArray(vaoId);
@@ -101,13 +97,13 @@ public class FontBatch {
         // Allocate space for vertices.
         vboId = glGenBuffers();
         glBindBuffer(GL_ARRAY_BUFFER, vboId);
-        glBufferData(GL_ARRAY_BUFFER, vertexSize * batchSize * Float.BYTES, GL_DYNAMIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, vertexSize * maxBatchSize * Float.BYTES, GL_DYNAMIC_DRAW);
 
         // Generate and bind element buffer object.
         generateEbo();
 
         // Enable buffer attribute pointers.
-        int stride = 7 * Float.BYTES;
+        int stride = 7 * Float.BYTES;                                                                                   // Size of the vertex array in bytes.
         glVertexAttribPointer(0, 2, GL_FLOAT, false, stride, 0);
         glEnableVertexAttribArray(0);
         glVertexAttribPointer(1, 3, GL_FLOAT, false, stride, 2 * Float.BYTES);
@@ -122,7 +118,7 @@ public class FontBatch {
      */
     public void generateEbo() {
 
-        int elementSize = batchSize * 3;                                                                                // Multiply by three since there are three indices per triangle.
+        int elementSize = maxBatchSize * 3;                                                                                // Multiply by three since there are three indices per triangle.
         int[] elementBuffer = new int[elementSize];
 
         for (int i = 0; i < elementSize; i++) {
@@ -174,7 +170,7 @@ public class FontBatch {
      */
     private void addCharacter(float x, float y, float scale, CharInfo charInfo, int rgb) {
 
-        if (size >= (batchSize - 4)) {
+        if (numVertices >= (maxBatchSize - 4)) {
 
             flush();                                                                                                    // Flush batch (i.e., render then clear) to start fresh.
         }
@@ -192,7 +188,7 @@ public class FontBatch {
         float ux1 = charInfo.getTextureCoords()[1].x;
         float uy1 = charInfo.getTextureCoords()[0].y;
 
-        int index = size * 7;                                                                                           // First vertex with position, color, and texture coordinates; seven floats per vertex.
+        int index = numVertices * 7;                                                                                           // First vertex with position, color, and texture coordinates; seven floats per vertex.
         vertices[index] = x1;                                                                                           // Position (X).
         vertices[index + 1] = y0;                                                                                       // Position (Y).
         vertices[index + 2] = r;                                                                                        // Color (red).
@@ -228,7 +224,7 @@ public class FontBatch {
         vertices[index + 5] = ux0;
         vertices[index + 6] = uy0;
 
-        size += 4;                                                                                                      // Four vertices have now been added.
+        numVertices += 4;                                                                                               // Four vertices have now been added.
     }
 
 
@@ -240,7 +236,7 @@ public class FontBatch {
 
         // Clear buffer on GPU.
         glBindBuffer(GL_ARRAY_BUFFER, vboId);
-        glBufferData(GL_ARRAY_BUFFER, vertexSize * batchSize * Float.BYTES, GL_DYNAMIC_DRAW);                           // Allocate memory on GPU.
+        glBufferData(GL_ARRAY_BUFFER, vertexSize * maxBatchSize * Float.BYTES, GL_DYNAMIC_DRAW);                           // Allocate memory on GPU.
 
         // Upload CPU contents (vertex data).
         glBufferSubData(GL_ARRAY_BUFFER, 0, vertices);
@@ -250,12 +246,12 @@ public class FontBatch {
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, font.getTextureId());
         shader.uploadTexture("uFontTexture", 0);
-        shader.uploadMat4f("uProjection", projection);
+        shader.uploadMat4f("uProjection", gp.getCamera().getProjectionMatrix());
         glBindVertexArray(vaoId);
-        glDrawElements(GL_TRIANGLES, (size * 6), GL_UNSIGNED_INT, 0);
+        glDrawElements(GL_TRIANGLES, (numVertices * 6), GL_UNSIGNED_INT, 0);
 
         // Reset batch for use on next call.
-        size = 0;
+        numVertices = 0;
 
         // Unbind after drawing.
         glBindVertexArray(0);

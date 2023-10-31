@@ -188,7 +188,7 @@ public class FontBatch {
         float ux1 = charInfo.getTextureCoords()[1].x;
         float uy1 = charInfo.getTextureCoords()[0].y;
 
-        int index = numVertices * 7;                                                                                           // First vertex with position, color, and texture coordinates; seven floats per vertex.
+        int index = numVertices * 7;                                                                                    // First vertex with position, color, and texture coordinates; seven floats per vertex.
         vertices[index] = x1;                                                                                           // Position (X).
         vertices[index + 1] = y0;                                                                                       // Position (Y).
         vertices[index + 2] = r;                                                                                        // Color (red).

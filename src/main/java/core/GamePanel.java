@@ -137,7 +137,9 @@ public class GamePanel  {
 
         gameObject1.transform.position.x += 2;
 
-        renderer.addStringToBatch("Hello, World! g p", 0, 0, 0.5f, 0x00000000, "Arimo");
+        renderer.addStringToBatch("Hello, World! g p y", 0, 0, 0.5f, 0x00000000, "Arimo");
+        renderer.addStringToBatch("Have a great day?", 0, 90, 0.3f, 0x00000000, "Arimo Bold");
+        renderer.addStringToBatch("Yes indeed.", 20, 130, 0.5f, 0x00AAAAAA, "Arimo");
 
         // Update each game object.
         for (Drawable gameObject : gameObjects) {

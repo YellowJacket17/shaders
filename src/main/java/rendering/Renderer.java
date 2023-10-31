@@ -24,14 +24,14 @@ public class Renderer {
     private final ArrayList<DrawableBatch> drawableBatches  = new ArrayList<>();
 
     /**
-     * List to store font batches to render.
+     * Map to store font batches to render; font name is the key, font batch is the value.
      */
-    private final FontBatch fontBatch;
+    private final HashMap<String, FontBatch> fontBatches = new HashMap<>();
 
     /**
      * List to store staged text to render.
      */
-    private final ArrayList<Text> stagedText = new ArrayList<>();
+    private final HashMap<String, ArrayList<Text>> stagedText = new HashMap<>();
 
     /**
      * Map to store loaded fonts; font name is the key, font is the value.
@@ -47,8 +47,6 @@ public class Renderer {
      */
     public Renderer(GamePanel gp) {
         this.gp = gp;
-        this.fontBatch = new FontBatch(gp);
-        this.fontBatch.init();
         initializeFonts();
     }
 
@@ -78,13 +76,15 @@ public class Renderer {
             batch.render();
         }
 
-        for (Text text : stagedText) {
+        for (String font : stagedText.keySet()) {                                                                       // Loop through each type of font stored in the staged text.
 
-            fontBatch.setFont(fonts.get(text.getFont()));
-            fontBatch.addString(text.getText(), text.getScreenX(), text.getScreenY(), text.getScale(), text.getRgb());
-            fontBatch.flush();                                                                                          // Must flush at the end of the frame to actually render entire batch.
+            for (Text text : stagedText.get(font)) {                                                                    // Render all text of the current font.
+
+                fontBatches.get(font).addString(text.getText(), text.getScreenX(), text.getScreenY(), text.getScale(), text.getRgb());
+            }
+            fontBatches.get(font).flush();                                                                              // Must flush at the end to actually render entire batch.
+            stagedText.get(font).clear();                                                                               // Remove all staged text of the current font as it has already been rendered.
         }
-        stagedText.clear();                                                                                             // Remove all staged text as it has already been rendered.
     }
 
 
@@ -134,7 +134,15 @@ public class Renderer {
      */
     public void addStringToBatch(String text, int screenX, int screenY, float scale, int rgb, String font) {
 
-        stagedText.add(new Text(text, screenX, screenY, scale, rgb, font));
+        if (stagedText.get(font) == null) {
+
+            stagedText.put(font, new ArrayList<>());                                                                    // Create a new list of staged text for this new font.
+            FontBatch newBatch = new FontBatch(gp);
+            newBatch.init();
+            newBatch.setFont(fonts.get(font));
+            fontBatches.put(font, newBatch);                                                                            // Create a new batch for this new font.
+        }
+        stagedText.get(font).add(new Text(text, screenX, screenY, scale, rgb, font));
     }
 
 

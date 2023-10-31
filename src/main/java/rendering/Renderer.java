@@ -134,7 +134,7 @@ public class Renderer {
      */
     public void addStringToBatch(String text, int screenX, int screenY, float scale, int rgb, String font) {
 
-        if (stagedText.get(font) == null) {
+        if (stagedText.get(font) == null) {                                                                             // Check if any text with this font has already been processed.
 
             stagedText.put(font, new ArrayList<>());                                                                    // Create a new list of staged text for this new font.
             FontBatch newBatch = new FontBatch(gp);

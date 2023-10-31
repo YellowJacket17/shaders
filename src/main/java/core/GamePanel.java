@@ -119,7 +119,7 @@ public class GamePanel  {
         // Add game objects to renderer.
         int i = 1;
         for (Drawable gameObject : gameObjects) {
-            System.out.println("Adding " + i);
+            System.out.println("Adding Game Object " + i);
             i++;
             renderer.addDrawable(gameObject);
         }

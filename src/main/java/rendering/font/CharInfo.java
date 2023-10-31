@@ -9,7 +9,7 @@ public class CharInfo {
 
     // FIELDS
     /**
-     * Raw character coordinate on original rendered parent font image.
+     * Raw character coordinate on original generated parent font image.
      * This is NOT a texture coordinate and is only used to calculate texture coordinates.
      * Note that the parent image form which these raw coordinates are taken from has its origin set in the top-left
      * corner; all raw coordinates are in respect to that.
@@ -41,6 +41,13 @@ public class CharInfo {
      */
     private final Vector2f textureCoords[] = new Vector2f[4];
 
+    /**
+     * Width adjustment for this character when generating texture coordinates.
+     * This amount is added to the original width right before converting to texture coordinates.
+     * Increased width helps prevent any of the character from getting clipped on the rightmost side.
+     */
+    private final int widthAdjustment = 3;
+
 
     // CONSTRUCTOR
     /**
@@ -71,7 +78,7 @@ public class CharInfo {
     public void calculateTextureCoordinates(int fontWidth, int fontHeight) {
 
         float x0 = (float)sourceX / (float)fontWidth;                                                                   // Convert `sourceX` to a 0-1 range.
-        float x1 = (float)(sourceX + width) / (float)fontWidth;                                                         // Convert `sourceX + width` to a 0-1 range.
+        float x1 = (float)(sourceX + width + widthAdjustment) / (float)fontWidth;                                       // Convert `sourceX + width` to a 0-1 range.
         float y0 = (float)(sourceY - height) / (float)fontHeight;                                                       // Convert `sourceY - height` to a 0-1 range.
         float y1 = ((float)sourceY / (float)fontHeight) + ((float)descent / (float)fontHeight);                         // Convert `sourceY + descent` to a 0-1 range.
 

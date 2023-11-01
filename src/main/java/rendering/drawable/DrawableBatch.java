@@ -24,7 +24,7 @@ public class DrawableBatch {
      * Vertex in Vertex Array
      * ======================
      * Position         Color                          Texture coordinates     Texture ID
-     * float, float,    float, float, float, float,    float, float, float,    float
+     * float, float,    float, float, float, float,    float, float,           float
      */
 
     // FIELDS
@@ -105,7 +105,7 @@ public class DrawableBatch {
     /**
      * Vertex array.
      * Note that there are four vertices per quad.
-     * We would like to a number of drawables equal to the maximum batch size, hence the multiplication by four.
+     * We would like a number of drawables equal to the maximum batch size, hence the multiplication by four.
      * Each drawable to render requires a quad.
      */
     private final float[] vertices = new float[maxBatchSize * 4 * vertexSize];
@@ -223,6 +223,9 @@ public class DrawableBatch {
         // Camera.
         shader.uploadMat4f("uProjection", gp.getCamera().getProjectionMatrix());
         shader.uploadMat4f("uView", gp.getCamera().getViewMatrix());
+
+//        shader.uploadVec2f("uDimensions", new Vector2f(120, 60));  // 120, 60
+//        shader.uploadFloat("uRadius", 20.0f);
 
         // Bind textures.
         for (int i = 0; i < textures.size(); i++) {

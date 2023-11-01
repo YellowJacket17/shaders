@@ -128,7 +128,7 @@ public class GamePanel  {
 
         // Add rectangle to renderer.
         renderer.addRectangle(new Vector4f(0, 191, 255, 0.5f),
-                new Transform(new Vector2f(0, 300), new Vector2f(nativeScreenWidth, 60)));
+                new Transform(new Vector2f(0, 300), new Vector2f(120, 60)));
     }
 
 

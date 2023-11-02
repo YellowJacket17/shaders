@@ -95,6 +95,16 @@ public class GamePanel  {
         // Spritesheets.
         String filePath = "src/main/resources/characters/spritesheets/transparent.png";
         AssetPool.addSpritesheet(new Spritesheet(AssetPool.getTexture(filePath), 6, 32, 48, 0));
+//
+//        filePath = "src/main/resources/landmarks/spritesheets/transparent.png";
+//        int[] widths = new int[] {62, 32};
+//        int[] heights = new int[] {90, 70};
+//        AssetPool.addSpritesheet(new Spritesheet(AssetPool.getTexture(filePath), 2, widths, heights, 2));
+//
+//        filePath = "src/main/resources/landmarks/spritesheets/transparent2.png";
+//        widths = new int[] {62, 32, 62};
+//        heights = new int[] {90, 70, 90};
+//        AssetPool.addSpritesheet(new Spritesheet(AssetPool.getTexture(filePath), 3, widths, heights, 2));
     }
 
 

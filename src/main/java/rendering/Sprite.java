@@ -18,7 +18,7 @@ public class Sprite {
      * Note that texture coordinates are normalized from zero to one, where (0, 0) is the bottom-left corner of the
      * texture and (1, 1) is the top-right corner.
      */
-    private Vector2f[] textureCoords;
+    private final Vector2f[] textureCoords;
 
     /**
      * Native sprite width.
@@ -32,10 +32,25 @@ public class Sprite {
 
 
     // CONSTRUCTORS
+
+    /**
+     * Constructs a null Sprite instance.
+     */
+    public Sprite() {
+        Vector2f[] textureCoords = {
+                new Vector2f(1, 1),
+                new Vector2f(1, 0),
+                new Vector2f(0, 0),
+                new Vector2f(0, 1)
+        };
+        this.textureCoords = textureCoords;
+    }
+
+
     /**
      * Constructs a Sprite instance.
      *
-     * @param texture parent texture of sprite
+     * @param texture parent texture of sprite (sprite will encompass entire texture)
      */
     public Sprite(Texture texture) {
         this.texture = texture;
@@ -46,6 +61,8 @@ public class Sprite {
                 new Vector2f(0, 1)
         };
         this.textureCoords = textureCoords;
+        this.nativeWidth = texture.getNativeWidth();
+        this.nativeHeight = texture.getNativeHeight();
     }
 
 

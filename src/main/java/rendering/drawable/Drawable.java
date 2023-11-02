@@ -61,7 +61,7 @@ public class Drawable {
         this.color = color;
         this.transform = new Transform();
         this.lastTransform = transform.copy();
-        this.sprite = new Sprite(null);
+        this.sprite = new Sprite();
     }
 
 
@@ -77,7 +77,7 @@ public class Drawable {
         this.color = color;
         this.transform = transform;
         this.lastTransform = transform.copy();
-        this.sprite = new Sprite(null);
+        this.sprite = new Sprite();
     }
 
 

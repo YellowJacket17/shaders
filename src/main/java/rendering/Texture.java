@@ -99,7 +99,7 @@ public class Texture {
      */
     public Texture(int width, int height) {
 
-        this.filePath = "generated";
+        this.filePath = "auto-generated";
 
         // Generate texture on GPU.
         textureId = glGenTextures();

@@ -18,12 +18,13 @@ public class Drawable {
     private String name;
 
     /**
-     * Drawable color.
+     * Drawable color (r, g, b, a).
      */
     private Vector4f color;
 
     /**
-     * Stores the current position (screen position, top-left coordinate) and scale (size) of the quad that this drawable is mapped to.
+     * Stores the current position (screen position, top-left coordinate) and scale (size) of the quad that this
+     * drawable is mapped to.
      * Modifying this variable will modify the position and scale of this drawable.
      */
     public Transform transform;
@@ -53,7 +54,7 @@ public class Drawable {
      * Constructs a Drawable instance.
      *
      * @param name name of this drawable
-     * @param color color of this drawable
+     * @param color color of this drawable (r, g, b, a)
      */
     public Drawable(String name, Vector4f color) {
         this.name = name;
@@ -68,7 +69,7 @@ public class Drawable {
      * Constructs a Drawable instance.
      *
      * @param name name of this drawable
-     * @param color color of this drawable
+     * @param color color of this drawable (r, g, b, a)
      * @param transform position (top-left coordinate) and scale (width and height) of this drawable
      */
     public Drawable(String name, Vector4f color, Transform transform) {

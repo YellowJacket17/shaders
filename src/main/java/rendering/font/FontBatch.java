@@ -1,6 +1,7 @@
 package rendering.font;
 
 import core.GamePanel;
+import org.joml.Vector3f;
 import rendering.Shader;
 import utilities.AssetPool;
 
@@ -17,6 +18,43 @@ public class FontBatch {
 
     // FIELDS
     private final GamePanel gp;
+
+    /**
+     * Defines two position floats in the vertex array for each vertex.
+     */
+    private final int positionSize = 2;
+
+    /**
+     * Defines four color floats in the vertex array for each vertex.
+     */
+    private final int colorSize = 3;
+
+    /**
+     * Defines two texture coordinate floats in the vertex array for each vertex.
+     * Note that a texture is not necessarily needed with texture coordinates.
+     * Texture coordinates describe points within the quad.
+     */
+    private final int textureCoordsSize = 2;
+
+    /**
+     * Defines the offset (in bytes) of the start of the position floats in the vertex array for each vertex.
+     * Here, the position starts at the beginning of a vertex definition, so it has zero offset.
+     */
+    private final int positionOffset = 0;
+
+    /**
+     * Defines the offset (in bytes) of the start of the color floats in the vertex array for each vertex.
+     * Here, the color starts after the position in a vertex definition, so it has an offset determined by the position.
+     */
+    private final int colorOffset = positionOffset + positionSize * Float.BYTES;
+
+    /**
+     * Defines the offset (in bytes) of the start of the texture coordinate floats in the vertex array for each vertex.
+     * Here, the texture coordinates start after the color in a vertex definition, so it has an offset determined by the
+     * color.
+     */
+    private final int textureCoordsOffset = colorOffset + colorSize * Float.BYTES;
+
 
     /**
      * Maximum number of vertices that can be added to this batch.
@@ -103,12 +141,12 @@ public class FontBatch {
         generateEbo();
 
         // Enable buffer attribute pointers.
-        int stride = 7 * Float.BYTES;                                                                                   // Size of the vertex array in bytes.
-        glVertexAttribPointer(0, 2, GL_FLOAT, false, stride, 0);
+        int stride = vertexSize * Float.BYTES;                                                                          // Size of the vertex array in bytes.
+        glVertexAttribPointer(0, positionSize, GL_FLOAT, false, stride, positionOffset);
         glEnableVertexAttribArray(0);
-        glVertexAttribPointer(1, 3, GL_FLOAT, false, stride, 2 * Float.BYTES);
+        glVertexAttribPointer(1, colorSize, GL_FLOAT, false, stride, colorOffset);
         glEnableVertexAttribArray(1);
-        glVertexAttribPointer(2, 2, GL_FLOAT, false, stride, 5 * Float.BYTES);
+        glVertexAttribPointer(2, textureCoordsSize, GL_FLOAT, false, stride, textureCoordsOffset);
         glEnableVertexAttribArray(2);
     }
 
@@ -138,9 +176,9 @@ public class FontBatch {
      * @param x x-coordinate (leftmost)
      * @param y y-coordinate (topmost)
      * @param scale scale factor compared to native font size
-     * @param rgb color in hexadecimal format
+     * @param color color (r, g, b)
      */
-    public void addString(String text, int x, int y, float scale, int rgb) {
+    public void addString(String text, int x, int y, float scale, Vector3f color) {
 
         for (int i = 0; i < text.length(); i++) {                                                                       // Add each character from the string to the batch, one at a time.
 
@@ -153,7 +191,7 @@ public class FontBatch {
             }
             float xPos = x;
             float yPos = y;
-            addCharacter(xPos, yPos, scale, charInfo, rgb);                                                             // Add character to batch.                                                    // Adds character to batch.
+            addCharacter(xPos, yPos, scale, charInfo, color);                                                           // Add character to batch.                                                    // Adds character to batch.
             x += charInfo.getWidth() * scale;                                                                           // Prepare for next character in string.
         }
     }
@@ -166,17 +204,17 @@ public class FontBatch {
      * @param y y-coordinate (topmost)
      * @param scale sale factor compared to native font size
      * @param charInfo character data
-     * @param rgb color in hexadecimal format
+     * @param color color (r, g, b)
      */
-    private void addCharacter(float x, float y, float scale, CharInfo charInfo, int rgb) {
+    private void addCharacter(float x, float y, float scale, CharInfo charInfo, Vector3f color) {
 
         if (numVertices >= (maxBatchSize - 4)) {
 
             flush();                                                                                                    // Flush batch (i.e., render then clear) to start fresh.
         }
-        float r = (float)(((rgb >> 16) & 0xFF) / 255.0);                                                                // Extract red information from hexadecimal.
-        float g = (float)(((rgb >> 8) & 0xFF) / 255.0);                                                                 // Extract green information from hexadecimal.
-        float b = (float)(((rgb >> 0) & 0xFF) / 255.0);                                                                 // Extract blue information from hexadecimal.
+        float r = (float)(color.x / 255.0);                                                                             // Extract red information.
+        float g = (float)(color.y / 255.0);                                                                             // Extract green information.
+        float b = (float)(color.z / 255.0);                                                                             // Extract blue information.
 
         float x0 = x;                                                                                                   // Top-left corner (remember that positive Y is down).
         float y0 = y;                                                                                                   // ^^^

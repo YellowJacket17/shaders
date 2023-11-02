@@ -1,5 +1,7 @@
 package rendering.font;
 
+import org.joml.Vector3f;
+
 /**
  * This class represent text to be rendered.
  */
@@ -27,9 +29,9 @@ public class Text {
     private final float scale;
 
     /**
-     * Color in hexadecimal format.
+     * Color (r, g, b).
      */
-    private final int rgb;
+    private final Vector3f color;
 
     /**
      * Font name.
@@ -48,12 +50,12 @@ public class Text {
      * @param rgb color in hexadecimal format
      * @param font font name
      */
-    public Text(String text, int screenX, int screenY, float scale, int rgb, String font) {
+    public Text(String text, int screenX, int screenY, float scale, Vector3f color, String font) {
         this.text = text;
         this.screenX = screenX;
         this.screenY = screenY;
         this.scale = scale;
-        this.rgb = rgb;
+        this.color = color;
         this.font = font;
     }
 
@@ -75,8 +77,8 @@ public class Text {
         return scale;
     }
 
-    public int getRgb() {
-        return rgb;
+    public Vector3f getColor() {
+        return color;
     }
 
     public String getFont() {

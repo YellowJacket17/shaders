@@ -4,10 +4,7 @@ import core.GamePanel;
 import org.joml.Vector2f;
 import org.joml.Vector4f;
 import rendering.Shader;
-import rendering.Texture;
 import utilities.AssetPool;
-
-import java.util.ArrayList;
 
 import static org.lwjgl.opengl.GL15.*;
 import static org.lwjgl.opengl.GL20.*;
@@ -16,16 +13,11 @@ import static org.lwjgl.opengl.GL30.glBindVertexArray;
 import static org.lwjgl.opengl.GL30.glGenVertexArrays;
 
 /**
- * This class holds a batch of drawables to be sent to the GPU and rendered in a single call.
+ * This class holds a single drawable to be sent to the GPU and rendered.
+ * Note that this is more computationally expensive than rendering in a batch.
+ * That said, it is not possible to render quads with rounded corners in a batch.
  */
-public class DrawableBatch {
-
-    /*
-     * Vertex in Vertex Array
-     * ======================
-     * Position         Color                          Texture coordinates     Texture ID
-     * float, float,    float, float, float, float,    float, float,           float
-     */
+public class DrawableSingle {
 
     // FIELDS
     private final GamePanel gp;
@@ -77,24 +69,9 @@ public class DrawableBatch {
     private final int textureIdOffset = textureCoordsOffset + textureCoordsSize * Float.BYTES;
 
     /**
-     * Maximum number of drawables that can be added to this batch.
+     * Drawable to be rendered.
      */
-    private int maxBatchSize = 1000;
-
-    /**
-     * Actual number of drawables added to this batch (array of drawables) thus far.
-     */
-    private int numDrawables;
-
-    /**
-     * Array to store drawables that will be rendered with this batch.
-     */
-    private final Drawable[] drawables = new Drawable[maxBatchSize];
-
-    /**
-     * Boolean indicating whether any more drawables can be added to this batch.
-     */
-    private boolean hasRoom = true;
+    private Drawable drawable;
 
     /**
      * Total number of floats in each vertex of the vertex array.
@@ -104,11 +81,9 @@ public class DrawableBatch {
 
     /**
      * Vertex array.
-     * Note that there are four vertices per quad.
-     * We would like a number of drawables equal to the maximum batch size, hence the multiplication by four.
-     * Each drawable to render requires a quad.
+     * Note that there are four vertices per quad, hence the multiplication by four.
      */
-    private final float[] vertices = new float[maxBatchSize * 4 * vertexSize];
+    private final float[] vertices = new float[4 * vertexSize];
 
     /**
      * Vertex array object ID.
@@ -121,26 +96,14 @@ public class DrawableBatch {
     private int vboId;
 
     /**
-     * Slots available to bind textures for sampling during a draw in this batch.
-     * Here, the number available is limited eight textures to ensure that lower-end GPUs are supported, even though
-     * OpenGL specifies a minimum of 16 available slots.
-     * This will index into the appropriate texture from the textures list.
-     * In other words, this correlates directly to the textures in the textures list being bound in the GPU.
-     * Note that slot zero is reserved for the empty texture.
-     */
-    private final int[] textureSlots = {0, 1, 2, 3, 4, 5, 6, 7};
-
-    // TODO : Change textures to be a LimitedArrayList with maximum size of eight.
-    /**
-     * List to store the textures available in this batch.
-     * As a reminder, a texture is an entire spritesheet, while a sprite is a section of a spritesheet (i.e., texture).
-     */
-    private final ArrayList<Texture> textures = new ArrayList<>();
-
-    /**
-     * Shader attached to this batch.
+     * Shader attached to this rectangle.
      */
     private final Shader shader;
+
+    /**
+     * Radius of rounded corners.
+     */
+    private int radius;
 
 
     // CONSTRUCTOR
@@ -149,9 +112,9 @@ public class DrawableBatch {
      *
      * @param gp GamePanel instance
      */
-    public DrawableBatch(GamePanel gp) {
+    public DrawableSingle(GamePanel gp) {
         this.gp = gp;
-        this.shader = AssetPool.getShader("/shaders/default.glsl");
+        this.shader = AssetPool.getShader("/shaders/rounded.glsl");
     }
 
 
@@ -199,16 +162,11 @@ public class DrawableBatch {
         // Update each drawable with new position, color, and texture if applicable.
         boolean rebufferData = false;
 
-        for (int i = 0; i < numDrawables; i++) {
+        if (drawable.isDirty()) {
 
-            Drawable drawable = drawables[i];
-
-            if (drawable.isDirty()) {
-
-                loadVertexProperties(i);
-                drawable.setClean();
-                rebufferData = true;
-            }
+            loadVertexProperties();
+            drawable.setClean();
+            rebufferData = true;
         }
 
         // Rebuffer all data if anything has changed since last render operation.
@@ -224,13 +182,15 @@ public class DrawableBatch {
         // Camera.
         shader.uploadMat4f("uProjection", gp.getCamera().getProjectionMatrix());
         shader.uploadMat4f("uView", gp.getCamera().getViewMatrix());
+        shader.uploadVec2f("uDimensions", new Vector2f(drawable.transform.scale.x, drawable.transform.scale.y));
+        shader.uploadFloat("uRadius", radius);
 
         // Bind textures.
-        for (int i = 0; i < textures.size(); i++) {
-            glActiveTexture(GL_TEXTURE0 + i + 1);                                                                       // Activate texture in appropriate slot; slot zero is reserved for the empty texture.
-            textures.get(i).bind();
+        if (drawable.getTexture() != null) {
+            glActiveTexture(GL_TEXTURE0);                                                                               // Activate texture in slot zero.
+            drawable.getTexture().bind();
         }
-        shader.uploadIntArray("uTextures", textureSlots);                                                               // Use multiple textures in shader (up to seven plus the empty texture).
+        shader.uploadFloat("uTexture", 0);                                                                              // Use texture in slot zero.
 
         // Bind VAO being used.
         glBindVertexArray(vaoId);
@@ -240,62 +200,51 @@ public class DrawableBatch {
         glEnableVertexAttribArray(1);
 
         // Draw.
-        glDrawElements(GL_TRIANGLES, (numDrawables * 6), GL_UNSIGNED_INT, 0);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
         // Unbind after drawing.
         glDisableVertexAttribArray(0);
         glDisableVertexAttribArray(1);
         glBindVertexArray(0);                                                                                           // 0 is a flag that states to bind nothing.
         shader.detach();                                                                                                // Detach shader program.
-        for (int i = 0; i < textures.size(); i++) {
-            textures.get(i).unbind();
-        }
-    }
-
-
-    /**
-     * Adds a drawable to this batch.
-     *
-     * @param drawable Drawable instance to add
-     */
-    public void addDrawable(Drawable drawable) {
-
-        // Get index and add render object.
-        int index = numDrawables;
-        drawables[index] = drawable;
-        numDrawables++;
-
-        // Check if drawable has texture; if so, add to list if not already loaded.
         if (drawable.getTexture() != null) {
-            if (!textures.contains(drawable.getTexture())) {
-                textures.add(drawable.getTexture());
-            }
-        }
-
-        // Add properties to local vertices array.
-        loadVertexProperties(index);
-
-        // Check if batch has run out of room.
-        if (numDrawables >= maxBatchSize) {
-            hasRoom = false;
+            drawable.getTexture().unbind();
         }
     }
 
 
     /**
-     * Generates indices for all quads in this batch.
-     * The number of quads generated is determined by the maximum batch size.
+     * Sets a drawable to render.
+     *
+     * @param drawable Drawable instance to set
+     */
+    public void setDrawable(Drawable drawable) {
+
+        this.drawable = drawable;
+        loadVertexProperties();
+    }
+
+
+    /**
+     * Sets the radius of the arc at the four corners of the quad.
+     *
+     * @param radius arc radius
+     */
+    public void setRadius(int radius) {
+
+        this.radius = radius;
+    }
+
+
+    /**
+     * Generates indices for this quad.
      *
      * @return indices
      */
     private int[] generateIndices() {
 
-        int[] elements = new int[6 * maxBatchSize];                                                                     // 6 indices per quad (3 per triangle).
-
-        for (int i = 0; i < maxBatchSize; i++) {
-
-            loadElementIndices(elements, i);
-        }
+        int[] elements = new int[6];                                                                                    // 6 indices per quad (3 per triangle).
+        loadElementIndices(elements);
         return elements;
     }
 
@@ -304,37 +253,28 @@ public class DrawableBatch {
      * Loads the indices for a single quad in an array of indices.
      *
      * @param elements array of indices that contains the target quad
-     * @param index first index of the target quad in the array of indices (each quad is composed of six sequential
-     *              indices, since each quad is made of two triangles)
      */
-    private void loadElementIndices(int[] elements, int index) {
-
-        int offsetArrayIndex = 6 * index;
-        int offset = 4 * index;
+    private void loadElementIndices(int[] elements) {
 
         // Triangle 1.
-        elements[offsetArrayIndex] = offset + 3;
-        elements[offsetArrayIndex + 1] = offset + 2;
-        elements[offsetArrayIndex + 2] = offset + 0;
+        elements[0] = 3;
+        elements[1] = 2;
+        elements[2] = 0;
 
         // Triangle 2.
-        elements[offsetArrayIndex + 3] = offset + 0;
-        elements[offsetArrayIndex + 4] = offset + 2;
-        elements[offsetArrayIndex + 5] = offset + 1;
+        elements[3] = 0;
+        elements[4] = 2;
+        elements[5] = 1;
     }
 
 
     /**
-     * Loads the vertex properties of the specified drawable.
-     *
-     * @param index index of target drawables in the list of drawables to be rendered with this batch
+     * Loads the vertex properties of this drawable.
      */
-    private void loadVertexProperties(int index) {
+    private void loadVertexProperties() {
 
-        Drawable drawable = drawables[index];
-
-        // Find offset within array (4 vertices per drawable).
-        int offset = index * 4 * vertexSize;
+        // Initialize offset within array (4 vertices per drawable, start with first).
+        int offset = 0;
 
         // Color.
         Vector4f color = drawable.getColor();
@@ -343,12 +283,7 @@ public class DrawableBatch {
         Vector2f[] textureCoords = drawable.getTextureCoords();
         int textureId = 0;
         if (drawable.getTexture() != null) {
-            for (int i = 0; i < textures.size(); i++) {                                                                 // Find the texture ID; loop through all textures in this batch until we find a match, then assign corresponding ID.
-                if (textures.get(i).equals(drawable.getTexture())) {                                                    // Use `.equals()` because == only compares memory address of two objects, not actual contents.
-                    textureId = i + 1;                                                                                  // Texture slot 0 is reserved for no bound texture to sprite, hence why one is added.
-                    break;
-                }
-            }
+            textureId = 0;                                                                                              // Texture slot 0.
         }
 
         // Add vertices with appropriate properties.
@@ -387,19 +322,5 @@ public class DrawableBatch {
             // Increment.
             offset += vertexSize;
         }
-    }
-
-
-    // GETTERS
-    public boolean hasRoom() {
-        return hasRoom;
-    }
-
-    public boolean hasTextureRoom() {
-        return textures.size() < 8;
-    }
-
-    public boolean hasTexture(Texture texture) {
-        return textures.contains(texture);
     }
 }

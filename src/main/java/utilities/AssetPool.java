@@ -35,7 +35,7 @@ public class AssetPool {
      * Returns a shader loaded into memory.
      * If the specified shader is not yet loaded, it will first be loaded and then returned.
      *
-     * @param resourceName file path of shader from program root
+     * @param resourceName file path of shader from resources directory
      * @return shader
      */
     public static Shader getShader(String resourceName) {

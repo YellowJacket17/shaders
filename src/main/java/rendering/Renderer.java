@@ -2,10 +2,11 @@ package rendering;
 
 import core.GamePanel;
 import core.Transform;
-import org.joml.Vector2f;
+import org.joml.Vector3f;
 import org.joml.Vector4f;
 import rendering.drawable.Drawable;
 import rendering.drawable.DrawableBatch;
+import rendering.drawable.DrawableSingle;
 import rendering.font.CFont;
 import rendering.font.FontBatch;
 import rendering.font.Text;
@@ -22,9 +23,14 @@ public class Renderer {
     private final GamePanel gp;
 
     /**
-     * List to store drawable batches to render.
+     * List to store batches of drawables to render.
      */
-    private final ArrayList<DrawableBatch> drawableBatches  = new ArrayList<>();
+    private final ArrayList<DrawableBatch> drawableBatches = new ArrayList<>();
+
+    /**
+     * List to store single drawables to render.
+     */
+    private final ArrayList<DrawableSingle> drawableSingles = new ArrayList<>();
 
     /**
      * Map to store font batches to render; font name is the key, font batch is the value.
@@ -65,11 +71,16 @@ public class Renderer {
             batch.render();
         }
 
+        for (DrawableSingle single : drawableSingles) {
+
+            single.render();
+        }
+
         for (String font : stagedText.keySet()) {                                                                       // Loop through each type of font stored in the staged text.
 
             for (Text text : stagedText.get(font)) {                                                                    // Render all text of the current font.
 
-                fontBatches.get(font).addString(text.getText(), text.getScreenX(), text.getScreenY(), text.getScale(), text.getRgb());
+                fontBatches.get(font).addString(text.getText(), text.getScreenX(), text.getScreenY(), text.getScale(), text.getColor());
             }
             fontBatches.get(font).flush();                                                                              // Must flush at the end to actually render entire batch.
             stagedText.get(font).clear();                                                                               // Remove all staged text of the current font as it has already been rendered.
@@ -98,10 +109,9 @@ public class Renderer {
      * @param screenX x-coordinate (leftmost)
      * @param screenY y-coordinate (topmost)
      * @param scale scale factor compared to native font size
-     * @param rgb color in hexadecimal format; 0x00000000 produces black text with transparent background
      * @param font name of font to use
      */
-    public void addString(String text, int screenX, int screenY, float scale, int rgb, String font) {
+    public void addString(String text, int screenX, int screenY, float scale, String font) {
 
         if (stagedText.get(font) == null) {                                                                             // Check if any text with this font has already been processed.
 
@@ -111,27 +121,57 @@ public class Renderer {
             newBatch.setFont(fonts.get(font));
             fontBatches.put(font, newBatch);                                                                            // Create a new batch for this new font.
         }
-        stagedText.get(font).add(new Text(text, screenX, screenY, scale, rgb, font));
+        stagedText.get(font).add(new Text(text, screenX, screenY, scale, new Vector3f(0, 0, 0), font));                 // Force text color to be black for now until alpha issue fixed.
     }
 
 
     /**
-     * Adds a rectangle to the render pipeline.
+     * Adds a rectangle with square corners to the render pipeline.
      *
-     * @param color color of this rectangle
+     * @param color color of this rectangle (r, g, b, a)
      * @param transform position (top-left coordinate) and scale (width and height) of this rectangle
      */
     public void addRectangle(Vector4f color, Transform transform) {
 
         Drawable rectangle = new Drawable("auto-generated-rectangle", color, transform);
-        addDrawable(rectangle);
+        addDrawableToBatch(rectangle);
     }
 
 
     /**
-     * Adds a drawable to a render batch.
+     * Adds a rectangle with round corners to the render pipeline.
      *
-     * @param drawable Drawable instance to add
+     * @param color color of this rectangle (r, g, b, a)
+     * @param transform position (top-left coordinate) and scale (width and height) of this rectangle
+     * @param radius arc radius at four corners of this rectangle
+     */
+    public void addRoundRectangle(Vector4f color, Transform transform, int radius) {
+
+        Drawable rectangle = new Drawable("auto-generated-round-rectangle", color, transform);
+        addDrawableToSingle(rectangle, radius);
+    }
+
+
+    /**
+     * Adds a single drawable to render.
+     *
+     * @param drawable drawable to add
+     * @param radius arc radius at four corners of quad
+     */
+    public void addDrawableToSingle(Drawable drawable, int radius) {
+
+        DrawableSingle single = new DrawableSingle(gp);
+        single.init();
+        single.setDrawable(drawable);
+        single.setRadius(radius);
+        drawableSingles.add(single);
+    }
+
+
+    /**
+     * Adds a drawable to a batch to render.
+     *
+     * @param drawable drawable to add
      */
     private void addDrawableToBatch(Drawable drawable) {
 

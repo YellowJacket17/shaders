@@ -1,5 +1,6 @@
 package core;
 
+import org.joml.Vector3f;
 import org.joml.Vector4f;
 import rendering.*;
 import org.joml.Vector2f;
@@ -126,9 +127,13 @@ public class GamePanel  {
         }
         System.out.println("Finished");
 
+        // Add round rectangle to renderer.
+        renderer.addRoundRectangle(new Vector4f(0, 191, 255, 0.5f),
+                new Transform(new Vector2f(0, 300), new Vector2f(120, 60)), 30);
+
         // Add rectangle to renderer.
-        renderer.addRectangle(new Vector4f(0, 191, 255, 0.5f),
-                new Transform(new Vector2f(0, 300), new Vector2f(120, 60)));
+        renderer.addRectangle(new Vector4f(0, 255, 0, 0.2f),
+                new Transform(new Vector2f(150, 90), new Vector2f(200, 75)));
     }
 
 
@@ -142,9 +147,9 @@ public class GamePanel  {
 
         gameObject1.transform.position.x += 2;
 
-        renderer.addString("Hello, World! g p y", 0, 0, 0.5f, 0x00000000, "Arimo");
-        renderer.addString("Have a great day?", 0, 90, 0.3f, 0x00000000, "Arimo Bold");
-        renderer.addString("Yes indeed.", 20, 130, 0.5f, 0x00AAAAAA, "Arimo");
+        renderer.addString("Hello, World! g p y", 0, 0, 0.5f, "Arimo");
+        renderer.addString("Have a great day?", 0, 90, 0.3f, "Arimo Bold");
+        renderer.addString("Yes indeed.", 20, 130, 0.5f, "Arimo");
 
         // Update each game object.
         for (Drawable gameObject : gameObjects) {

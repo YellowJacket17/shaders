@@ -212,9 +212,9 @@ public class FontBatch {
 
             flush();                                                                                                    // Flush batch (i.e., render then clear) to start fresh.
         }
-        float r = (float)(color.x / 255.0);                                                                             // Extract red information.
-        float g = (float)(color.y / 255.0);                                                                             // Extract green information.
-        float b = (float)(color.z / 255.0);                                                                             // Extract blue information.
+        float r = color.x / 255;                                                                                        // Extract red information.
+        float g = color.y / 255;                                                                                        // Extract green information.
+        float b = color.z / 255;                                                                                        // Extract blue information.
 
         float x0 = x;                                                                                                   // Top-left corner (remember that positive Y is down).
         float y0 = y;                                                                                                   // ^^^

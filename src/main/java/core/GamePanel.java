@@ -128,11 +128,11 @@ public class GamePanel  {
         System.out.println("Finished");
 
         // Add round rectangle to renderer.
-        renderer.addRoundRectangle(new Vector4f(0, 191, 255, 0.5f),
-                new Transform(new Vector2f(0, 300), new Vector2f(120, 60)), 30);
+        renderer.addRoundRectangle(new Vector4f(0, 191, 255, 180),
+                new Transform(new Vector2f(5, 300), new Vector2f(120, 60)), 20);
 
         // Add rectangle to renderer.
-        renderer.addRectangle(new Vector4f(0, 255, 0, 0.2f),
+        renderer.addRectangle(new Vector4f(0, 255, 0, 100),
                 new Transform(new Vector2f(150, 90), new Vector2f(200, 75)));
     }
 

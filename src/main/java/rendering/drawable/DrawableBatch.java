@@ -372,10 +372,10 @@ public class DrawableBatch {
             vertices[offset + 1] = drawable.transform.position.y + (yAdd * drawable.transform.scale.y);
 
             // Load color.
-            vertices[offset + 2] = color.x;
-            vertices[offset + 3] = color.y;
-            vertices[offset + 4] = color.z;
-            vertices[offset + 5] = color.w;
+            vertices[offset + 2] = color.x / 255;                                                                       // Red information.
+            vertices[offset + 3] = color.y / 255;                                                                       // Green information.
+            vertices[offset + 4] = color.z / 255;                                                                       // Blue information.
+            vertices[offset + 5] = color.w / 255;                                                                       // Alpha information.
 
             // Load texture coordinates.
             vertices[offset + 6] = textureCoords[i].x;

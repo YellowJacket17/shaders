@@ -90,7 +90,7 @@ public class Drawable {
      */
     public Drawable(String name, Transform transform, Sprite sprite) {
         this.name = name;
-        this.color = new Vector4f(1, 1, 1, 1);
+        this.color = new Vector4f(255, 255, 255, 255);
         this.transform = transform;
         this.lastTransform = transform.copy();
         this.sprite = sprite;

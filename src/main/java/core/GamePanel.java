@@ -87,13 +87,14 @@ public class GamePanel  {
      */
     private void loadResources() {
 
+        // Shaders.
         AssetPool.getShader("/shaders/default.glsl");
+        AssetPool.getShader("/shaders/rounded.glsl");
+        AssetPool.getShader("/shaders/font.glsl");
 
-        // TODO : Make everything a relative path from the resources folder!
-
-        String spritesheetPath = "src/main/resources/characters/spritesheets/transparent.png";
-        AssetPool.addSpritesheet(spritesheetPath,
-                new Spritesheet(AssetPool.getTexture(spritesheetPath), 6, 32, 48, 0));
+        // Spritesheets.
+        String filePath = "src/main/resources/characters/spritesheets/transparent.png";
+        AssetPool.addSpritesheet(new Spritesheet(AssetPool.getTexture(filePath), 6, 32, 48, 0));
     }
 
 
@@ -103,7 +104,7 @@ public class GamePanel  {
     private void initGameObjects() {
 
         // Retrieve spritesheet.
-        Spritesheet sprites = AssetPool.getSpritesheet("src/main/resources/characters/spritesheets/transparent.png");
+        Spritesheet sprites = AssetPool.getSpritesheet(0);
 
         // Create game objects.
         Sprite sprite = sprites.getSprite(0);

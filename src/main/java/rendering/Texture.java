@@ -42,7 +42,7 @@ public class Texture {
      * Note that as many textures as desired can be uploaded to the GPU as long as memory permits.
      * This should not be confused with the number of slots available for binding on the GPU for texture sampling.
      *
-     * @param filePath file path of texture from resources directory
+     * @param filePath file path of texture from program root
      */
     public Texture(String filePath) {
 

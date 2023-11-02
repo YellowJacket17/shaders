@@ -6,6 +6,7 @@ import java.util.ArrayList;
 
 /**
  * This class represent a spritesheet that contains many sprites to be extracted.
+ * A spritesheet is an parent entire texture, while a sprite is a section of a spritesheet (i.e., texture).
  */
 public class Spritesheet {
 
@@ -18,23 +19,22 @@ public class Spritesheet {
     /**
      * List to store all sprites derived from this spritesheet.
      */
-    private final ArrayList<Sprite> sprites;
+    private final ArrayList<Sprite> sprites = new ArrayList<>();;
 
 
     // CONSTRUCTOR
     /**
      * Constructs a Spritesheet instance.
-     * Sprites are derived from the spritesheet upon construction.
+     * Sprites are derived from this spritesheet upon construction.
      *
-     * @param texture parent texture of spritesheet
-     * @param numSprites number of sprites contiained within this spritesheet
+     * @param texture parent texture of this spritesheet to derive sprites from
+     * @param numSprites number of sprites contained within this spritesheet
      * @param spriteWidth native width of each sprite in this spritesheet
      * @param spriteHeight native height of each sprite in this spritesheet
      * @param spacing native spacing between each sprite in this spritesheet
      */
     public Spritesheet(Texture texture, int numSprites, int spriteWidth, int spriteHeight, int spacing) {
 
-        this.sprites = new ArrayList<>();
         this.texture = texture;
         int currentX = 0;
         int currentY = texture.getNativeHeight() - spriteHeight;
@@ -69,8 +69,25 @@ public class Spritesheet {
     }
 
 
-    // GETTER
+    // GETTERS
+    public Texture getTexture() {
+        return texture;
+    }
+
     public Sprite getSprite(int index) {
         return sprites.get(index);
+    }
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null) {
+            return false;
+        }
+        if (!(o instanceof Spritesheet)) {
+            return false;
+        }
+        Spritesheet oSpritesheet = (Spritesheet)o;
+        return oSpritesheet.getTexture().equals(this.texture);
     }
 }

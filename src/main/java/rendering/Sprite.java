@@ -9,7 +9,7 @@ public class Sprite {
 
     // FIELDS
     /**
-     * Parent texture of sprite.
+     * Parent texture of this sprite.
      */
     private Texture texture;
 

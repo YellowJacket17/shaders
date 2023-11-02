@@ -5,6 +5,7 @@ import rendering.Spritesheet;
 import rendering.Texture;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
@@ -27,29 +28,27 @@ public class AssetPool {
     /**
      * Map to store all spritesheets loaded into the game.
      */
-    private static HashMap<String, Spritesheet> spritesheets = new HashMap<>();
+    private static ArrayList<Spritesheet> spritesheets = new ArrayList<>();
 
 
     // METHODS
     /**
      * Returns a shader loaded into memory.
-     * If the specified shader is not yet loaded, it will first be loaded and then returned.
+     * If the specified shader is not yet loaded, it will first be loaded from file and then returned.
      *
      * @param resourceName file path of shader from resources directory
      * @return shader
      */
     public static Shader getShader(String resourceName) {
 
-        File file = new File(resourceName);
+        if (shaders.containsKey(resourceName)) {
 
-        if (shaders.containsKey(file.getAbsolutePath())) {
-
-            return shaders.get(file.getAbsolutePath());
+            return shaders.get(resourceName);
         } else {
 
             Shader shader = new Shader(resourceName);
             shader.compileAndLink();
-            shaders.put(file.getAbsolutePath(), shader);
+            shaders.put(resourceName, shader);
             return shader;
         }
     }
@@ -57,41 +56,47 @@ public class AssetPool {
 
     /**
      * Returns a texture loaded into memory.
-     * If the specified texture is not yet loaded, it will first be loaded and then returned.
+     * If the specified texture is not yet loaded, it will first be loaded from file and then returned.
      *
      * @param resourceName file path of texture from program root
      * @return texture
      */
     public static Texture getTexture(String resourceName) {
 
-        File file = new File(resourceName);
+        if (textures.containsKey(resourceName)) {
 
-        if (textures.containsKey(file.getAbsolutePath())) {
-
-            return textures.get(file.getAbsolutePath());
+            return textures.get(resourceName);
         } else {
 
             Texture texture = new Texture(resourceName);
-            textures.put(file.getAbsolutePath(), texture);
+            textures.put(resourceName, texture);
             return texture;
         }
     }
 
 
     /**
-     * Loads a spritesheet into memory.
+     * Loads a spritesheet into memory from file.
      * If the specified spritesheet is already loaded, then nothing will occur.
      *
-     * @param resourceName file path of spritesheet from program root
-     * @param spritesheet Spritesheet instance
+     * @param spritesheet spritesheet to add
      */
-    public static void addSpritesheet(String resourceName, Spritesheet spritesheet) {
+    public static void addSpritesheet(Spritesheet spritesheet) {
 
-        File file = new File(resourceName);
+        boolean repeat = false;
 
-        if (!spritesheets.containsKey(file.getAbsolutePath())) {
+        for (Spritesheet loaded : spritesheets) {
 
-            spritesheets.put(file.getAbsolutePath(), spritesheet);
+            if (loaded.equals(spritesheet)) {
+
+                repeat = true;
+                break;
+            }
+        }
+
+        if (!repeat) {
+
+            spritesheets.add(spritesheet);
         }
     }
 
@@ -100,19 +105,21 @@ public class AssetPool {
      * Returns a spritesheet loaded into memory.
      * If the specified spritesheet is not yet loaded, then an exception will occur.
      *
-     * @param resourceName file path of spritesheet from program root
+     * @param spritesheet index of spritesheet to retrieve (0, 1, 2, etc.); note that spritesheets are indexed in the
+     *                    order in which they are loaded into memory
      * @return spritesheet
      * @throws RuntimeException
      */
-    public static Spritesheet getSpritesheet(String resourceName) {
+    public static Spritesheet getSpritesheet(int spritesheet) {
 
-        File file = new File(resourceName);
+        try {
 
-        if (!spritesheets.containsKey(file.getAbsolutePath())) {
+            return spritesheets.get(spritesheet);
 
-            // TODO : Replace this with AssetLoaderException or AssetException in final game.
-            throw new RuntimeException("Attempted to access an unloaded spritesheet in " + resourceName);
+        } catch (IndexOutOfBoundsException e) {
+
+            // TODO : Replace this more specific exception.
+            throw new RuntimeException("Attempted to access an unloaded spritesheet");
         }
-        return spritesheets.getOrDefault(file.getAbsolutePath(), null);
     }
 }

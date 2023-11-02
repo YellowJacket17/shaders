@@ -20,6 +20,11 @@ public class Shader {
 
     // FIELDS
     /**
+     * Shader file path.
+     */
+    private final String filePath;
+
+    /**
      * Shader ID.
      */
     private int shaderProgramId;
@@ -33,11 +38,6 @@ public class Shader {
      * Fragment from this shader.
      */
     private String fragmentSource;
-
-    /**
-     * Shader file path.
-     */
-    private final String filePath;
 
     /**
      * Boolean indicating whether this shader is currently in use or not.
@@ -313,7 +313,26 @@ public class Shader {
 
                 resultStringBuilder.append(line).append("\n");
             }
+
+        } catch (Exception e) {
+
+            // TODO : Change to AssetLoadException.
+            throw new RuntimeException("Failed to load shader from " + filePath);
         }
         return resultStringBuilder.toString();
+    }
+
+
+    // GETTER
+    public String getFilePath() {
+        return filePath;
+    }
+
+    public int getShaderProgramId() {
+        return shaderProgramId;
+    }
+
+    public boolean isInUse() {
+        return inUse;
     }
 }

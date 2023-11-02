@@ -109,9 +109,10 @@ public class Renderer {
      * @param screenX x-coordinate (leftmost)
      * @param screenY y-coordinate (topmost)
      * @param scale scale factor compared to native font size
+     * @param color color (r, g, b)
      * @param font name of font to use
      */
-    public void addString(String text, int screenX, int screenY, float scale, String font) {
+    public void addString(String text, int screenX, int screenY, float scale, Vector3f color, String font) {
 
         if (stagedText.get(font) == null) {                                                                             // Check if any text with this font has already been processed.
 
@@ -121,7 +122,7 @@ public class Renderer {
             newBatch.setFont(fonts.get(font));
             fontBatches.put(font, newBatch);                                                                            // Create a new batch for this new font.
         }
-        stagedText.get(font).add(new Text(text, screenX, screenY, scale, new Vector3f(0, 0, 0), font));                 // Force text color to be black for now until alpha issue fixed.
+        stagedText.get(font).add(new Text(text, screenX, screenY, scale, color, font));
     }
 
 

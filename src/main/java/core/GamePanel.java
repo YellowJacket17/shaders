@@ -147,9 +147,9 @@ public class GamePanel  {
 
         gameObject1.transform.position.x += 2;
 
-        renderer.addString("Hello, World! g p y", 0, 0, 0.5f, "Arimo");
-        renderer.addString("Have a great day?", 0, 90, 0.3f, "Arimo Bold");
-        renderer.addString("Yes indeed.", 20, 130, 0.5f, "Arimo");
+        renderer.addString("Hello, World! g p y", 0, 0, 0.5f, new Vector3f(0, 0, 0), "Arimo");
+        renderer.addString("Have a great day?", 0, 90, 0.3f, new Vector3f(0, 0, 0), "Arimo Bold");
+        renderer.addString("Yes indeed.", 20, 130, 0.5f, new Vector3f(200, 143, 15), "Arimo");
 
         // Update each game object.
         for (Drawable gameObject : gameObjects) {

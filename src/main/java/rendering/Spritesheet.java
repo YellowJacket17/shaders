@@ -19,7 +19,7 @@ public class Spritesheet {
     /**
      * List to store all sprites derived from this spritesheet.
      */
-    private final ArrayList<Sprite> sprites = new ArrayList<>();;
+    private final ArrayList<Sprite> sprites = new ArrayList<>();
 
 
     // CONSTRUCTORS
@@ -115,7 +115,7 @@ public class Spritesheet {
             // Iterate to next sprite in parent texture if necessary.
             if (i < (numSprites - 1)) {
                 currentX += spriteWidths[i] + spacing;
-                if (currentX >= texture.getNativeWidth()) {
+                if ((currentX + spriteWidths[i + 1]) > texture.getNativeWidth()) {                                      // If width of next sprite cannot fit in current row, it must be in the next row up.
                     currentX = 0;
                     currentY -= spriteHeights[i + 1] + spacing;
                 }

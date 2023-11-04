@@ -15,22 +15,22 @@ public class Drawable {
     /**
      * Drawable name.
      */
-    private String name;
+    private final String name;
 
     /**
      * Drawable color (r, g, b, a).
      */
-    private Vector4f color;
+    private final Vector4f color;
 
     /**
-     * Stores the current position (screen position, top-left coordinate) and scale (size) of the quad that this
+     * Stores the current screen position (top-left coordinate) and scale (width and height) of the quad that this
      * drawable is mapped to.
-     * Modifying this variable will modify the position and scale of this drawable.
+     * Modifying this variable will directly affect the position and scale of this drawable.
      */
-    public Transform transform;
+    public final Transform transform;
 
     /**
-     * Drawable sprite.
+     * Active drawable sprite.
      */
     private Sprite sprite;
 
@@ -55,7 +55,7 @@ public class Drawable {
      *
      * @param name name of this drawable
      * @param color color of this drawable (r, g, b, a)
-     * @param transform position (top-left coordinate) and scale (width and height) of this drawable
+     * @param transform screen position (top-left coordinate) and scale (width and height) of this drawable
      */
     public Drawable(String name, Transform transform, Vector4f color) {
         this.name = name;
@@ -70,7 +70,7 @@ public class Drawable {
      *
      * @param name name of this drawable
      * @param sprite sprite of this drawable
-     * @param transform position (top-left coordinate) and scale (width and height) of this drawable
+     * @param transform screen position (top-left coordinate) and scale (width and height) of this drawable
      */
     public Drawable(String name, Transform transform, Sprite sprite) {
         this.name = name;

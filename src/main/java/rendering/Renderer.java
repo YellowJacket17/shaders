@@ -62,31 +62,30 @@ public class Renderer {
 
     // METHODS
     /**
-     * Renders all added drawables and fonts.
+     * Renders all added drawables and text.
      */
     public void render() {
 
+        // Batches of drawables.
         for (DrawableBatch batch : drawableBatches) {
-
             if (batch.hasDrawable()) {
-
                 batch.flush();
             }
         }
 
+        // Single drawables.
         for (DrawableSingle single : drawableSingles) {
-
             if (!single.isAvailable()) {
-
                 single.flush();
             }
         }
 
+        // Text.
         for (String font : stagedText.keySet()) {                                                                       // Loop through each type of font stored in the staged text.
-
             for (Text text : stagedText.get(font)) {                                                                    // Render all text of the current font.
-
-                fontBatches.get(font).addString(text.getText(), text.getScreenX(), text.getScreenY(), text.getScale(), text.getColor());
+                fontBatches.get(font).addString(text.getText(),
+                        text.getScreenX(), text.getScreenY(),
+                        text.getScale(), text.getColor());
             }
             fontBatches.get(font).flush();                                                                              // Must flush at the end to render any remaining characters in the batch.
             stagedText.get(font).clear();                                                                               // Remove all staged text of the current font as it has already been rendered.
@@ -124,7 +123,6 @@ public class Renderer {
 
             stagedText.put(font, new ArrayList<>());                                                                    // Create a new list of staged text for this new font.
             FontBatch newBatch = new FontBatch(gp);
-            newBatch.init();
             newBatch.setFont(fonts.get(font));
             fontBatches.put(font, newBatch);                                                                            // Create a new batch for this new font.
         }
@@ -136,7 +134,7 @@ public class Renderer {
      * Adds a rectangle with square corners to the render pipeline.
      *
      * @param color color of this rectangle (r, g, b, a)
-     * @param transform position (top-left coordinate) and scale (width and height) of this rectangle
+     * @param transform screen position (top-left coordinate) and scale (width and height) of this rectangle
      */
     public void addRectangle(Vector4f color, Transform transform) {
 
@@ -149,7 +147,7 @@ public class Renderer {
      * Adds a rectangle with round corners to the render pipeline.
      *
      * @param color color of this rectangle (r, g, b, a)
-     * @param transform position (top-left coordinate) and scale (width and height) of this rectangle
+     * @param transform screen position (top-left coordinate) and scale (width and height) of this rectangle
      * @param radius arc radius at four corners of this rectangle
      */
     public void addRoundRectangle(Vector4f color, Transform transform, int radius) {
@@ -183,7 +181,6 @@ public class Renderer {
         if (!added) {
 
             DrawableSingle single = new DrawableSingle(gp);
-            single.init();
             single.setDrawable(drawable);
             single.setRadius(radius);
             drawableSingles.add(single);
@@ -218,7 +215,6 @@ public class Renderer {
         if (!added) {
 
             DrawableBatch newBatch = new DrawableBatch(gp);
-            newBatch.init();
             drawableBatches.add(newBatch);
             newBatch.addDrawable(drawable);
         }

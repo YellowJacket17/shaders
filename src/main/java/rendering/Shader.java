@@ -48,98 +48,19 @@ public class Shader {
     // CONSTRUCTOR
     /**
      * Constructs a Shader instance.
-     * The shader at the provided file path is loaded and parsed upon construction.
+     * The shader at the provided file path is loaded, compiled and linked upon construction.
      *
      * @param filePath file path of the shader from resources directory
      */
     public Shader(String filePath) {
 
         this.filePath = filePath;
-
-        try (InputStream is = getClass().getResourceAsStream(filePath)) {
-
-            // Load file.
-            String contents = readFromInputStream(is);
-            String[] splitString = contents.split("(#type)( )+([a-zA-Z]+)");
-
-            // First set of data (vertex or fragment).
-            int startIndex = contents.indexOf("#type") + 6;
-            int endOfLineIndex = contents.indexOf("\n", startIndex);
-            String firstPattern = contents.substring(startIndex, endOfLineIndex).trim();
-
-            // Second set of data (vertex or fragment).
-            startIndex = contents.indexOf("#type", endOfLineIndex) + 6;
-            endOfLineIndex = contents.indexOf("\n", startIndex);
-            String secondPattern = contents.substring(startIndex, endOfLineIndex).trim();
-
-            // Set first source with parsed data.
-            if (firstPattern.equals("vertex")) {
-                vertexSource = splitString[1];
-            } else if (firstPattern.equals("fragment")) {
-                fragmentSource = splitString[1];
-            } else {
-                throw new IOException("Unexpected token '" + firstPattern + "' in " + filePath);
-            }
-
-            // Set second source with parsed data.
-            if (secondPattern.equals("vertex")) {
-                vertexSource = splitString[2];
-            } else if (secondPattern.equals("fragment")) {
-                fragmentSource = splitString[2];
-            } else {
-                throw new IOException("Unexpected token '" + secondPattern + "' in " + filePath);
-            }
-
-        } catch (IOException e) {
-            // TODO : Throw new AssetLoadException in actual program here.
-            e.printStackTrace();
-            throw new RuntimeException("Failed to open file for shader from " + filePath);
-        }
+        load();
+        compileAndLink();
     }
 
 
     // METHODS
-    /**
-     * Compiles and links this shader.
-     */
-    public void compileAndLink() {
-
-        // Compile vertex shaders.
-        int vertexId = glCreateShader(GL_VERTEX_SHADER);                                                                // Load and compile vertex shader.
-        glShaderSource(vertexId, vertexSource);                                                                         // Pass shader source to GPU.
-        glCompileShader(vertexId);
-        int success = glGetShaderi(vertexId, GL_COMPILE_STATUS);
-        if (success == GL_FALSE) {                                                                                      // Check for compilation errors.
-            int length = glGetShaderi(vertexId, GL_INFO_LOG_LENGTH);
-            System.out.println(glGetShaderInfoLog(vertexId, length));
-            throw new RuntimeException("Failed to compile vertex shader from " + filePath);
-        }
-
-        // Compile fragment shaders.
-        int fragmentId = glCreateShader(GL_FRAGMENT_SHADER);                                                            // Load and compile vertex shader.
-        glShaderSource(fragmentId, fragmentSource);                                                                     // Pass shader source to GPU.
-        glCompileShader(fragmentId);
-        success = glGetShaderi(fragmentId, GL_COMPILE_STATUS);
-        if (success == GL_FALSE) {                                                                                      // Check for compilation errors.
-            int length = glGetShaderi(fragmentId, GL_INFO_LOG_LENGTH);
-            System.out.println(glGetShaderInfoLog(fragmentId, length));
-            throw new RuntimeException("Failed to compile fragment shader from " + filePath);
-        }
-
-        // Link shaders.
-        shaderProgramId = glCreateProgram();
-        glAttachShader(shaderProgramId, vertexId);
-        glAttachShader(shaderProgramId, fragmentId);
-        glLinkProgram(shaderProgramId);
-        success = glGetProgrami(shaderProgramId, GL_LINK_STATUS);
-        if (success == GL_FALSE) {
-            int length = glGetProgrami(shaderProgramId, GL_INFO_LOG_LENGTH);
-            System.out.println(glGetProgramInfoLog(shaderProgramId, length));
-            throw new RuntimeException("Failed to link shaders from " + filePath);
-        }
-    }
-
-
     /**
      * Uses this shader if not already in use.
      */
@@ -295,6 +216,95 @@ public class Shader {
 
 
     /**
+     * Loads this shader from file.
+     */
+    private void load() {
+
+        try (InputStream is = getClass().getResourceAsStream(filePath)) {
+
+            // Load file.
+            String contents = readFromInputStream(is);
+            String[] splitString = contents.split("(#type)( )+([a-zA-Z]+)");
+
+            // First set of data (vertex or fragment).
+            int startIndex = contents.indexOf("#type") + 6;
+            int endOfLineIndex = contents.indexOf("\n", startIndex);
+            String firstPattern = contents.substring(startIndex, endOfLineIndex).trim();
+
+            // Second set of data (vertex or fragment).
+            startIndex = contents.indexOf("#type", endOfLineIndex) + 6;
+            endOfLineIndex = contents.indexOf("\n", startIndex);
+            String secondPattern = contents.substring(startIndex, endOfLineIndex).trim();
+
+            // Set first source with parsed data.
+            if (firstPattern.equals("vertex")) {
+                vertexSource = splitString[1];
+            } else if (firstPattern.equals("fragment")) {
+                fragmentSource = splitString[1];
+            } else {
+                throw new IOException("Unexpected token '" + firstPattern + "' in " + filePath);
+            }
+
+            // Set second source with parsed data.
+            if (secondPattern.equals("vertex")) {
+                vertexSource = splitString[2];
+            } else if (secondPattern.equals("fragment")) {
+                fragmentSource = splitString[2];
+            } else {
+                throw new IOException("Unexpected token '" + secondPattern + "' in " + filePath);
+            }
+
+        } catch (IOException e) {
+            // TODO : Throw new AssetLoadException in actual program here.
+            e.printStackTrace();
+            throw new RuntimeException("Failed to open file for shader from " + filePath);
+        }
+    }
+
+
+    /**
+     * Compiles and links this shader.
+     */
+    private void compileAndLink() {
+
+        // Compile vertex shaders.
+        int vertexId = glCreateShader(GL_VERTEX_SHADER);                                                                // Load and compile vertex shader.
+        glShaderSource(vertexId, vertexSource);                                                                         // Pass shader source to GPU.
+        glCompileShader(vertexId);
+        int success = glGetShaderi(vertexId, GL_COMPILE_STATUS);
+        if (success == GL_FALSE) {                                                                                      // Check for compilation errors.
+            int length = glGetShaderi(vertexId, GL_INFO_LOG_LENGTH);
+            System.out.println(glGetShaderInfoLog(vertexId, length));
+            throw new RuntimeException("Failed to compile vertex shader from " + filePath);
+        }
+
+        // Compile fragment shaders.
+        int fragmentId = glCreateShader(GL_FRAGMENT_SHADER);                                                            // Load and compile vertex shader.
+        glShaderSource(fragmentId, fragmentSource);                                                                     // Pass shader source to GPU.
+        glCompileShader(fragmentId);
+        success = glGetShaderi(fragmentId, GL_COMPILE_STATUS);
+        if (success == GL_FALSE) {                                                                                      // Check for compilation errors.
+            int length = glGetShaderi(fragmentId, GL_INFO_LOG_LENGTH);
+            System.out.println(glGetShaderInfoLog(fragmentId, length));
+            throw new RuntimeException("Failed to compile fragment shader from " + filePath);
+        }
+
+        // Link shaders.
+        shaderProgramId = glCreateProgram();
+        glAttachShader(shaderProgramId, vertexId);
+        glAttachShader(shaderProgramId, fragmentId);
+        glLinkProgram(shaderProgramId);
+        success = glGetProgrami(shaderProgramId, GL_LINK_STATUS);
+        if (success == GL_FALSE) {
+            int length = glGetProgrami(shaderProgramId, GL_INFO_LOG_LENGTH);
+            System.out.println(glGetProgramInfoLog(shaderProgramId, length));
+            // TODO : Change this exception in final build.
+            throw new RuntimeException("Failed to link shaders from " + filePath);
+        }
+    }
+
+
+    /**
      * Extracts file contents from an input stream and returns them as a string.
      *
      * @param inputStream file input stream
@@ -323,7 +333,7 @@ public class Shader {
     }
 
 
-    // GETTER
+    // GETTERS
     public String getFilePath() {
         return filePath;
     }

@@ -3,13 +3,13 @@ package core;
 import org.joml.Vector2f;
 
 /**
- * This class stores position information.
+ * This class stores position and scale information.
  */
 public class Transform {
 
     // FIELDS
     /**
-     * Position (top-left coordinate).
+     * Screen position (top-left coordinate).
      */
     public Vector2f position;
 
@@ -32,8 +32,8 @@ public class Transform {
     /**
      * Constructs a Transform instance.
      *
-     * @param position position (top-left coordinate)
-     * @param scale scale (width and height)
+     * @param position screen position (top-left coordinate)
+     * @param scale size (width and height)
      */
     public Transform(Vector2f position, Vector2f scale) {
         this.position = position;

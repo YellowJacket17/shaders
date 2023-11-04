@@ -3,7 +3,7 @@ package rendering.font;
 import org.joml.Vector3f;
 
 /**
- * This class represent text to be rendered.
+ * This class represents a piece of text.
  */
 public class Text {
 
@@ -46,7 +46,7 @@ public class Text {
      * @param text text contents
      * @param screenX x-coordinate (leftmost) of text
      * @param screenY y-coordinate (topmost) of text
-     * @param scale sale factor compared to native font size
+     * @param scale scale factor compared to native font size
      * @param rgb color in hexadecimal format
      * @param font font name
      */

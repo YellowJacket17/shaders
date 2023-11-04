@@ -137,7 +137,7 @@ public class GamePanel  {
 
         // Keyboard input.
         if (KeyListener.isKeyPressed(GLFW_KEY_SPACE)) {
-            systemCamera.adjustPosition(new Vector2f(50, 50));
+            systemCamera.adjustPosition(new Vector2f(50, 20));
         }
 
         // Update each game object.

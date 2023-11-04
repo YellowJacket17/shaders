@@ -37,6 +37,41 @@ public class Spritesheet {
     public Spritesheet(Texture texture, int numSprites, int spriteWidth, int spriteHeight, int spacing) {
 
         this.texture = texture;
+        loadUniform(numSprites, spriteWidth, spriteHeight, spacing);
+    }
+
+
+    /**
+     * Constructs a Spritesheet instance.
+     * Sprites are derived from this spritesheet upon construction.
+     * This constructor is used for spritesheets containing sprites with non-uniform widths and heights.
+     *
+     * @param texture parent texture of this spritesheet to derive sprites from
+     * @param numSprites number of sprites contained within this spritesheet
+     * @param spriteWidths native width of each sprite in this spritesheet, ordered left-to-right, bottom-to-top
+     * @param spriteHeights native height of each sprite in this spritesheet, ordered left-to-right, bottom-to-top
+     * @param spacing native spacing between each sprite in this spritesheet
+     */
+    public Spritesheet(Texture texture, int numSprites, int[] spriteWidths, int[] spriteHeights, int spacing) {
+
+        this.texture = texture;
+        loadNonUniform(numSprites, spriteWidths, spriteHeights, spacing);
+    }
+
+
+    // METHODS
+    /**
+     * Derives sprites from a texture containing sprites with uniform widths and heights.
+     * Sprites are read left-to-right, bottom-to-top when deriving; in other words, the bottom-left sprite in the
+     * spritesheet is read first and the top-right sprite is read last.
+     *
+     * @param numSprites number of sprites contained within this spritesheet
+     * @param spriteWidth native width of each sprite in this spritesheet
+     * @param spriteHeight native height of each sprite in this spritesheet
+     * @param spacing native spacing between each sprite in this spritesheet
+     */
+    private void loadUniform(int numSprites, int spriteWidth, int spriteHeight, int spacing) {
+
         int currentX = 0;
         int currentY = texture.getNativeHeight() - spriteHeight;
 
@@ -71,24 +106,20 @@ public class Spritesheet {
 
 
     /**
-     * Constructs a Spritesheet instance.
-     * Sprites are derived from this spritesheet upon construction.
-     * This constructor is used for spritesheets containing sprites with non-uniform widths and heights.
+     * Derives sprites from a texture containing sprites with non-uniform widths and heights.
      * Sprites are read left-to-right, bottom-to-top when deriving; in other words, the bottom-left sprite in the
-     * spritesheet is read first and the top-right sprite is read last.
-     * Each sprite should be placed in the spritesheet with its topmost edge at the highest point in its respective row.
+     * texture is read first and the top-right sprite is read last.
+     * Each sprite should be placed in the texture with its topmost edge at the highest point in its respective row.
      * Ensure that the first sprite in each row is the tallest in said row.
      * The first sprite in a row determines the maximum height of said row.
      *
-     * @param texture parent texture of this spritesheet to derive sprites from
      * @param numSprites number of sprites contained within this spritesheet
      * @param spriteWidths native width of each sprite in this spritesheet, ordered left-to-right, bottom-to-top
      * @param spriteHeights native height of each sprite in this spritesheet, ordered left-to-right, bottom-to-top
      * @param spacing native spacing between each sprite in this spritesheet
      */
-    public Spritesheet(Texture texture, int numSprites, int[] spriteWidths, int[] spriteHeights, int spacing) {
+    private void loadNonUniform(int numSprites, int[] spriteWidths, int[] spriteHeights, int spacing) {
 
-        this.texture = texture;
         int currentX = 0;
         int currentY = texture.getNativeHeight() - spriteHeights[0];
 

@@ -64,7 +64,7 @@ public class KeyListener {
         } catch (ArrayIndexOutOfBoundsException e) {
 
             // TODO : Log warning here.
-            System.out.println("Unrecognized key with key code " + key + ".");
+            System.out.println("Unrecognized key code " + key + ".");
         }
     }
 

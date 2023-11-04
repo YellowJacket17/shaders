@@ -22,31 +22,74 @@ public class Texture {
     /**
      * Texture ID.
      */
-    private final int textureId;
+    private int textureId;
 
     /**
      * Native texture width.
      */
-    private final int nativeWidth;
+    private int nativeWidth;
 
     /**
      * Native texture height.
      */
-    private final int nativeHeight;
+    private int nativeHeight;
 
 
     // CONSTRUCTORS
     /**
      * Constructs a Texture instance.
-     * The texture at the provided file path is prepared and uploaded to the GPU upon construction.
+     * The texture at the provided file path is loaded and uploaded to the GPU upon construction.
      * Note that as many textures as desired can be uploaded to the GPU as long as memory permits.
      * This should not be confused with the number of slots available for binding on the GPU for texture sampling.
      *
      * @param filePath file path of texture from program root
      */
     public Texture(String filePath) {
-
         this.filePath = filePath;
+        load();
+    }
+
+
+    /**
+     * Constructs a Texture instance.
+     * An empty texture is prepared and allocated on the GPU upon construction.
+     *
+     * @param width texture width
+     * @param height texture height
+     */
+    public Texture(int width, int height) {
+
+        this.filePath = "auto-generated-texture";
+        allocate(width, height);
+    }
+
+
+    // METHODS
+    /**
+     * Binds this texture to be used when drawing.
+     * When binding, a shader is told where to find a texture that's been uploaded to the GPU via its texture ID.
+     * This texture is bound to a slot on the GPU.
+     * Inside a shader, the texture can then be retrieved from that slot and sampled to draw.
+     */
+    public void bind() {
+
+        glBindTexture(GL_TEXTURE_2D, textureId);
+    }
+
+
+    /**
+     * Unbinds this texture when finished being used.
+     */
+    public void unbind() {
+
+        glBindTexture(GL_TEXTURE_2D, 0);
+    }
+
+
+    /**
+     * Loads this texture from file and uploads it to the GPU.
+     */
+    private void load() {
 
         // Generate texture on GPU.
         textureId = glGenTextures();
@@ -91,15 +134,12 @@ public class Texture {
 
 
     /**
-     * Constructs a Texture instance.
-     * An empty texture is prepared and allocated on the GPU upon construction.
+     * Allocates an empty constructor on the GPU.
      *
      * @param width texture width
      * @param height texture height
      */
-    public Texture(int width, int height) {
-
-        this.filePath = "auto-generated";
+    private void allocate(int width, int height) {
 
         // Generate texture on GPU.
         textureId = glGenTextures();
@@ -109,28 +149,6 @@ public class Texture {
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
         nativeWidth = width;
         nativeHeight = height;
-    }
-
-
-    // METHODS
-    /**
-     * Binds this texture to be used when drawing.
-     * When binding, a shader is told where to find a texture that's been uploaded to the GPU via its texture ID.
-     * This texture is bound to a slot on the GPU.
-     * Inside a shader, the texture can then be retrieved from that slot and sampled to draw.
-     */
-    public void bind() {
-
-        glBindTexture(GL_TEXTURE_2D, textureId);
-    }
-
-
-    /**
-     * Unbinds this texture when finished being used.
-     */
-    public void unbind() {
-
-        glBindTexture(GL_TEXTURE_2D, 0);
     }
 
 

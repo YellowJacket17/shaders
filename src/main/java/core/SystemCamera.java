@@ -4,6 +4,10 @@ import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.joml.Vector2f;
 
+/**
+ * This class defines the system-level camera.
+ * Note that this is not the camera used in actual gameplay, but rather the overarching viewport of the renderer.
+ */
 public class SystemCamera {
 
     /*
@@ -74,7 +78,7 @@ public class SystemCamera {
 
     // CONSTRUCTOR
     /**
-     * Constructs a Camera instance.
+     * Constructs a SystemCamera instance.
      *
      * @param screenWidth visible screen width (NOT necessarily pixels but some amount of units)
      * @param screenHeight visible screen height (NOT necessarily pixels but some amount of units)

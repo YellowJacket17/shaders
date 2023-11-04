@@ -117,40 +117,11 @@ public class FontBatch {
     public FontBatch(GamePanel gp) {
         this.gp = gp;
         this.shader = AssetPool.getShader("/shaders/font.glsl");
+        init();
     }
 
 
     // METHODS
-    /**
-     * Initializes this batch.
-     * All necessary data is created on the GPU.
-     * In other words, space is allocated on the GPU.
-     */
-    public void init() {
-
-        // Generate and bind a vertex array object.
-        vaoId = glGenVertexArrays();
-        glBindVertexArray(vaoId);
-
-        // Allocate space for vertices.
-        vboId = glGenBuffers();
-        glBindBuffer(GL_ARRAY_BUFFER, vboId);
-        glBufferData(GL_ARRAY_BUFFER, vertexSize * maxBatchSize * Float.BYTES, GL_DYNAMIC_DRAW);
-
-        // Generate and bind element buffer object.
-        generateEbo();
-
-        // Enable buffer attribute pointers.
-        int stride = vertexSize * Float.BYTES;                                                                          // Size of the vertex array in bytes.
-        glVertexAttribPointer(0, positionSize, GL_FLOAT, false, stride, positionOffset);
-        glEnableVertexAttribArray(0);
-        glVertexAttribPointer(1, colorSize, GL_FLOAT, false, stride, colorOffset);
-        glEnableVertexAttribArray(1);
-        glVertexAttribPointer(2, textureCoordsSize, GL_FLOAT, false, stride, textureCoordsOffset);
-        glEnableVertexAttribArray(2);
-    }
-
-
     /**
      * Renders this batch then clears it of all characters.
      */
@@ -297,6 +268,36 @@ public class FontBatch {
             vertices[i] = 0;
         }
         numVertices = 0;
+    }
+
+
+    /**
+     * Initializes this batch.
+     * All necessary data is created on the GPU.
+     * In other words, space is allocated on the GPU.
+     */
+    private void init() {
+
+        // Generate and bind a vertex array object.
+        vaoId = glGenVertexArrays();
+        glBindVertexArray(vaoId);
+
+        // Allocate space for vertices.
+        vboId = glGenBuffers();
+        glBindBuffer(GL_ARRAY_BUFFER, vboId);
+        glBufferData(GL_ARRAY_BUFFER, vertexSize * maxBatchSize * Float.BYTES, GL_DYNAMIC_DRAW);
+
+        // Generate and bind element buffer object.
+        generateEbo();
+
+        // Enable buffer attribute pointers.
+        int stride = vertexSize * Float.BYTES;                                                                          // Size of the vertex array in bytes.
+        glVertexAttribPointer(0, positionSize, GL_FLOAT, false, stride, positionOffset);
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(1, colorSize, GL_FLOAT, false, stride, colorOffset);
+        glEnableVertexAttribArray(1);
+        glVertexAttribPointer(2, textureCoordsSize, GL_FLOAT, false, stride, textureCoordsOffset);
+        glEnableVertexAttribArray(2);
     }
 
 

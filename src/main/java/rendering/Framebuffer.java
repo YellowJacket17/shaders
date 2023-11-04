@@ -24,12 +24,40 @@ public class Framebuffer {
     // CONSTRUCTOR
     /**
      * Constructs a Framebuffer instance.
-     * The framebuffer is generated upon construction.
+     * This framebuffer is generated upon construction.
      *
-     * @param width width of the frame buffer (recommended to be native monitor width)
-     * @param height height of frame buffer (recommended to be native monitor height)
+     * @param width width of this framebuffer (recommended to be native monitor width)
+     * @param height height of this framebuffer (recommended to be native monitor height)
      */
     public Framebuffer(int width, int height) {
+        generate(width, height);
+    }
+
+
+    // METHODS
+    /**
+     * Binds this framebuffer for all subsequent render calls.
+     */
+    public void bind() {
+        glBindFramebuffer(GL_FRAMEBUFFER, fboId);
+    }
+
+
+    /**
+     * Unbinds this framebuffer for all subsequent render calls.
+     */
+    public void unbind() {
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    }
+
+
+    /**
+     * Generates this framebuffer.
+     *
+     * @param width width of this framebuffer
+     * @param height height of this framebuffer
+     */
+    private void generate(int width, int height) {
 
         // Generate framebuffer object.
         fboId = glGenFramebuffers();
@@ -55,23 +83,6 @@ public class Framebuffer {
         // When binding to a framebuffer, every subsequent render call will go to said framebuffer.
         // So, when we previously bound to frambuffer fboId, all subsequent render calls would go there.
         // We're returning to directly rendering to the window for now.
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    }
-
-
-    // METHODS
-    /**
-     * Binds this framebuffer for all subsequent render calls.
-     */
-    public void bind() {
-        glBindFramebuffer(GL_FRAMEBUFFER, fboId);
-    }
-
-
-    /**
-     * Unbinds this framebuffer for all subsequent render calls.
-     */
-    public void unbind() {
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
 

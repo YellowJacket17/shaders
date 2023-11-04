@@ -47,7 +47,6 @@ public class AssetPool {
         } else {
 
             Shader shader = new Shader(resourceName);
-            shader.compileAndLink();
             shaders.put(resourceName, shader);
             return shader;
         }

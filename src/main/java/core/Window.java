@@ -141,7 +141,7 @@ public class Window {
 
 
     /**
-     * Initializes a GamePanel instance and initializes the game.
+     * Initializes a GamePanel instance and the game.
      */
     public void initGame() {
 
@@ -151,7 +151,7 @@ public class Window {
 
 
     /**
-     * Starts the main game loop, which is the core of the game.
+     * Starts the main game loop.
      */
     public void run() {
 

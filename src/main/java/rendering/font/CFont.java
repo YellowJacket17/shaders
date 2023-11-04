@@ -69,6 +69,7 @@ public class CFont {
     // CONSTRUCTOR
     /**
      * Constructs a CFont instance.
+     * The font provided at the provided file path is loaded upon construction.
      *
      * @param filePath file path of font from resources directory
      * @param fontSize font scale (controls font resolution)

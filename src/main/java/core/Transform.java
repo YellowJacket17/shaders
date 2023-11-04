@@ -33,17 +33,6 @@ public class Transform {
      * Constructs a Transform instance.
      *
      * @param position position (top-left coordinate)
-     */
-    public Transform(Vector2f position) {
-        this.position = position;
-        this.scale = new Vector2f();
-    }
-
-
-    /**
-     * Constructs a Transform instance.
-     *
-     * @param position position (top-left coordinate)
      * @param scale scale (width and height)
      */
     public Transform(Vector2f position, Vector2f scale) {
@@ -85,7 +74,7 @@ public class Transform {
         if (!(o instanceof Transform)) {
             return false;
         }
-        Transform t = (Transform)o;
-        return t.position.equals(this.position) && t.scale.equals(this.scale);
+        Transform oTransform = (Transform)o;
+        return oTransform.position.equals(this.position) && oTransform.scale.equals(this.scale);
     }
 }

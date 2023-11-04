@@ -185,10 +185,6 @@ public class Window {
             // Unbind framebuffer.
 //            this.framebuffer.unbind();
 
-//            if (core.KeyListener.isKeyPressed(GLFW_KEY_SPACE)) {
-//                System.out.println("Space key is pressed!");
-//            }
-
             // Swap buffers automatically.
             glfwSwapBuffers(glfwWindow);
 

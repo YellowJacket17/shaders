@@ -160,10 +160,10 @@ public class Texture {
         if (!(o instanceof Texture)) {
             return false;
         }
-        Texture oTex = (Texture)o;
-        return (oTex.getNativeWidth() == this.nativeWidth)
-                && (oTex.getNativeHeight() == this.nativeHeight)
-                && (oTex.getTextureId() == this.textureId)
-                && (oTex.getFilePath().equals(this.filePath));
+        Texture oTexture = (Texture)o;
+        return (oTexture.getNativeWidth() == this.nativeWidth)
+                && (oTexture.getNativeHeight() == this.nativeHeight)
+                && (oTexture.getTextureId() == this.textureId)
+                && (oTexture.getFilePath().equals(this.filePath));
     }
 }

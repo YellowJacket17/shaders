@@ -30,23 +30,9 @@ public class Drawable {
     public Transform transform;
 
     /**
-     * Stores the last position (screen position) and scale (size) of the quad that this drawable is mapped to.
-     * If this is different from the current position, then this drawable will be redrawn/updated.
-     */
-    private Transform lastTransform;
-
-    /**
      * Drawable sprite.
      */
     private Sprite sprite;
-
-    /**
-     * Flag to check whether the position (screen position), color, or sprite of this drawable has changed since the
-     * last update/frame.
-     * If so, then this drawable will be redrawn/updated.
-     * The initial value is set to true to force a draw on the first frame that this drawable exists on.
-     */
-    private boolean dirty = true;
 
 
     // CONSTRUCTORS
@@ -56,11 +42,10 @@ public class Drawable {
      * @param name name of this drawable
      * @param color color of this drawable (r, g, b, a)
      */
-    public Drawable(String name, Vector4f color) {
+    public Drawable(String name, Sprite sprite) {
         this.name = name;
-        this.color = color;
+        this.color = new Vector4f(255, 255, 255, 255);
         this.transform = new Transform();
-        this.lastTransform = transform.copy();
         this.sprite = new Sprite();
     }
 
@@ -72,11 +57,10 @@ public class Drawable {
      * @param color color of this drawable (r, g, b, a)
      * @param transform position (top-left coordinate) and scale (width and height) of this drawable
      */
-    public Drawable(String name, Vector4f color, Transform transform) {
+    public Drawable(String name, Transform transform, Vector4f color) {
         this.name = name;
         this.color = color;
         this.transform = transform;
-        this.lastTransform = transform.copy();
         this.sprite = new Sprite();
     }
 
@@ -92,7 +76,6 @@ public class Drawable {
         this.name = name;
         this.color = new Vector4f(255, 255, 255, 255);
         this.transform = transform;
-        this.lastTransform = transform.copy();
         this.sprite = sprite;
     }
 
@@ -101,14 +84,7 @@ public class Drawable {
     /**
      * Updates the state of this drawable by one frame.
      */
-    public void update() {
-
-        if (!lastTransform.equals(transform)) {
-
-            transform.copy(lastTransform);
-            dirty = true;
-        }
-    }
+    public void update() {}
 
 
     // GETTERS
@@ -128,26 +104,17 @@ public class Drawable {
         return sprite.getTextureCoords();
     }
 
-    public boolean isDirty() {
-        return dirty;
-    }
-
 
     // SETTERS
     public void setColor(Vector4f color) {
         if (!this.color.equals(color)) {
             this.color.set(color);
-            dirty = true;
         }
     }
 
     public void setSprite(Sprite sprite) {
-        // TODO : Make like `setColor()` where it's only changed/flagged as dirty if the passed sprite is different from current.
-        this.sprite = sprite;
-        dirty = true;
-    }
-
-    public void setClean() {
-        this.dirty = false;
+        if (!this.sprite.equals(sprite)) {
+            this.sprite = sprite;
+        }
     }
 }

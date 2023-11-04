@@ -23,14 +23,14 @@ public class Renderer {
     private final GamePanel gp;
 
     /**
-     * List to store batches of drawables to render.
-     */
-    private final ArrayList<DrawableBatch> drawableBatches = new ArrayList<>();
-
-    /**
      * List to store single drawables to render.
      */
     private final ArrayList<DrawableSingle> drawableSingles = new ArrayList<>();
+
+    /**
+     * List to store batches of drawables to render.
+     */
+    private final ArrayList<DrawableBatch> drawableBatches = new ArrayList<>();
 
     /**
      * Map to store font batches to render; font name is the key, font batch is the value.
@@ -68,12 +68,18 @@ public class Renderer {
 
         for (DrawableBatch batch : drawableBatches) {
 
-            batch.render();
+            if (batch.hasDrawable()) {
+
+                batch.flush();
+            }
         }
 
         for (DrawableSingle single : drawableSingles) {
 
-            single.render();
+            if (!single.isAvailable()) {
+
+                single.flush();
+            }
         }
 
         for (String font : stagedText.keySet()) {                                                                       // Loop through each type of font stored in the staged text.
@@ -82,7 +88,7 @@ public class Renderer {
 
                 fontBatches.get(font).addString(text.getText(), text.getScreenX(), text.getScreenY(), text.getScale(), text.getColor());
             }
-            fontBatches.get(font).flush();                                                                              // Must flush at the end to actually render entire batch.
+            fontBatches.get(font).flush();                                                                              // Must flush at the end to render any remaining characters in the batch.
             stagedText.get(font).clear();                                                                               // Remove all staged text of the current font as it has already been rendered.
         }
     }
@@ -134,7 +140,7 @@ public class Renderer {
      */
     public void addRectangle(Vector4f color, Transform transform) {
 
-        Drawable rectangle = new Drawable("auto-generated-rectangle", color, transform);
+        Drawable rectangle = new Drawable("auto-generated-rectangle", transform, color);
         addDrawableToBatch(rectangle);
     }
 
@@ -148,7 +154,7 @@ public class Renderer {
      */
     public void addRoundRectangle(Vector4f color, Transform transform, int radius) {
 
-        Drawable rectangle = new Drawable("auto-generated-round-rectangle", color, transform);
+        Drawable rectangle = new Drawable("auto-generated-round-rectangle", transform, color);
         addDrawableToSingle(rectangle, radius);
     }
 
@@ -159,13 +165,29 @@ public class Renderer {
      * @param drawable drawable to add
      * @param radius arc radius at four corners of quad
      */
-    public void addDrawableToSingle(Drawable drawable, int radius) {
+    private void addDrawableToSingle(Drawable drawable, int radius) {
 
-        DrawableSingle single = new DrawableSingle(gp);
-        single.init();
-        single.setDrawable(drawable);
-        single.setRadius(radius);
-        drawableSingles.add(single);
+        boolean added = false;
+
+        for (DrawableSingle single : drawableSingles) {
+
+            if (single.isAvailable()) {
+
+                single.setDrawable(drawable);
+                single.setRadius(radius);
+                added = true;
+                break;
+            }
+        }
+
+        if (!added) {
+
+            DrawableSingle single = new DrawableSingle(gp);
+            single.init();
+            single.setDrawable(drawable);
+            single.setRadius(radius);
+            drawableSingles.add(single);
+        }
     }
 
 

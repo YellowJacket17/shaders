@@ -12,7 +12,7 @@ import static org.lwjgl.opengl.GL30.glBindVertexArray;
 import static org.lwjgl.opengl.GL30.glGenVertexArrays;
 
 /**
- * This class holds a batch of CFont instances to be sent to the GPU and rendered in a single call.
+ * This class holds a batch of characters to be sent to the GPU and rendered in a single call.
  */
 public class FontBatch {
 
@@ -152,20 +152,12 @@ public class FontBatch {
 
 
     /**
-     * Generates an element buffer object large enough to hold the number of vertices specified by the batch size.
+     * Renders this batch then clears it of all characters.
      */
-    public void generateEbo() {
+    public void flush() {
 
-        int elementSize = maxBatchSize * 3;                                                                                // Multiply by three since there are three indices per triangle.
-        int[] elementBuffer = new int[elementSize];
-
-        for (int i = 0; i < elementSize; i++) {
-
-            elementBuffer[i] = indices[(i % 6)] + ((i / 6) * 4);                                                        // Use pattern set by indices array.
-        }
-        int eboId = glGenBuffers();
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, eboId);                                                                   // Bind array.
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, elementBuffer, GL_STATIC_DRAW);                                           // Buffer array to GPU.
+        render();
+        clear();
     }
 
 
@@ -208,7 +200,7 @@ public class FontBatch {
      */
     private void addCharacter(float x, float y, float scale, CharInfo charInfo, Vector3f color) {
 
-        if (numVertices >= (maxBatchSize - 4)) {
+        if (numVertices >= maxBatchSize) {
 
             flush();                                                                                                    // Flush batch (i.e., render then clear) to start fresh.
         }
@@ -262,19 +254,17 @@ public class FontBatch {
         vertices[index + 5] = ux0;
         vertices[index + 6] = uy0;
 
-        numVertices += 4;                                                                                               // Four vertices have now been added.
+        numVertices += 4;                                                                                               // Four vertices (one character) have now been added.
     }
 
 
     /**
-     * Flushes this batch.
-     * This must be called to actually render text to the screen.
+     * Renders all characters in this batch.
      */
-    public void flush() {
+    private void render() {
 
         // Clear buffer on GPU.
         glBindBuffer(GL_ARRAY_BUFFER, vboId);
-        glBufferData(GL_ARRAY_BUFFER, vertexSize * maxBatchSize * Float.BYTES, GL_DYNAMIC_DRAW);                           // Allocate memory on GPU.
 
         // Upload CPU contents (vertex data).
         glBufferSubData(GL_ARRAY_BUFFER, 0, vertices);
@@ -284,17 +274,56 @@ public class FontBatch {
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, font.getTextureId());
         shader.uploadTexture("uFontTexture", 0);
-        shader.uploadMat4f("uProjection", gp.getCamera().getProjectionMatrix());
+        shader.uploadMat4f("uProjection", gp.getSystemCamera().getProjectionMatrix());
+        shader.uploadMat4f("uView", gp.getSystemCamera().getViewMatrix());
         glBindVertexArray(vaoId);
         glDrawElements(GL_TRIANGLES, (numVertices * 6), GL_UNSIGNED_INT, 0);
-
-        // Reset batch for use on next call.
-        numVertices = 0;
 
         // Unbind after drawing.
         glBindVertexArray(0);
         shader.detach();
         glBindTexture(GL_TEXTURE_2D, 0);
+    }
+
+
+    /**
+     * Clears this batch of all characters, resetting it to its default initialized state.
+     * Note that the set font is retained.
+     */
+    private void clear() {
+
+        for (int i = 0; i < vertices.length; i++) {
+
+            vertices[i] = 0;
+        }
+        numVertices = 0;
+    }
+
+
+    /**
+     * Generates an element buffer object large enough to hold the number of vertices specified by the batch size.
+     */
+    private void generateEbo() {
+
+        int elementSize = maxBatchSize * 3;                                                                                // Multiply by three since there are three indices per triangle.
+        int[] elementBuffer = new int[elementSize];
+
+        for (int i = 0; i < elementSize; i++) {
+
+            elementBuffer[i] = indices[(i % 6)] + ((i / 6) * 4);                                                        // Use pattern set by indices array.
+        }
+        int eboId = glGenBuffers();
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, eboId);                                                                   // Bind array.
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, elementBuffer, GL_STATIC_DRAW);                                           // Buffer array to GPU.
+    }
+
+
+    // GETTER
+    public String getFont() {
+        if (font != null) {
+            return font.getName();
+        }
+        return "";
     }
 
 

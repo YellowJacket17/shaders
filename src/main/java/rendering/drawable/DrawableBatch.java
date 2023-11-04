@@ -79,7 +79,7 @@ public class DrawableBatch {
     /**
      * Maximum number of drawables that can be added to this batch.
      */
-    private int maxBatchSize = 1000;
+    private final int maxBatchSize = 1000;
 
     /**
      * Actual number of drawables added to this batch (array of drawables) thus far.
@@ -192,38 +192,59 @@ public class DrawableBatch {
 
 
     /**
-     * Renders all drawables in this batch.
+     * Renders this batch then clears it of all drawables.
      */
-    public void render() {
+    public void flush() {
 
-        // Update each drawable with new position, color, and texture if applicable.
-        boolean rebufferData = false;
+        render();
+        clear();
+    }
 
-        for (int i = 0; i < numDrawables; i++) {
 
-            Drawable drawable = drawables[i];
+    /**
+     * Adds a drawable to this batch.
+     *
+     * @param drawable Drawable instance to add
+     */
+    public void addDrawable(Drawable drawable) {
 
-            if (drawable.isDirty()) {
+        // Get index and add render object.
+        int index = numDrawables;
+        drawables[index] = drawable;
+        numDrawables++;
 
-                loadVertexProperties(i);
-                drawable.setClean();
-                rebufferData = true;
+        // Check if drawable has texture; if so, add to list if not already loaded.
+        if (drawable.getTexture() != null) {
+            if (!textures.contains(drawable.getTexture())) {
+                textures.add(drawable.getTexture());
             }
         }
 
-        // Rebuffer all data if anything has changed since last render operation.
-        if (rebufferData) {
+        // Add properties to local vertices array.
+        loadVertexProperties(index);
 
-            glBindBuffer(GL_ARRAY_BUFFER, vboId);
-            glBufferSubData(GL_ARRAY_BUFFER, 0, vertices);
+        // Check if batch has run out of room.
+        if (numDrawables >= maxBatchSize) {
+            hasRoom = false;
         }
+    }
+
+
+    /**
+     * Renders all drawables in this batch.
+     */
+    private void render() {
+
+        // Rebuffer all data.
+        glBindBuffer(GL_ARRAY_BUFFER, vboId);
+        glBufferSubData(GL_ARRAY_BUFFER, 0, vertices);
 
         // Bind shader program.
         shader.use();
 
         // Camera.
-        shader.uploadMat4f("uProjection", gp.getCamera().getProjectionMatrix());
-        shader.uploadMat4f("uView", gp.getCamera().getViewMatrix());
+        shader.uploadMat4f("uProjection", gp.getSystemCamera().getProjectionMatrix());
+        shader.uploadMat4f("uView", gp.getSystemCamera().getViewMatrix());
 
         // Bind textures.
         for (int i = 0; i < textures.size(); i++) {
@@ -254,31 +275,21 @@ public class DrawableBatch {
 
 
     /**
-     * Adds a drawable to this batch.
-     *
-     * @param drawable Drawable instance to add
+     * Clears this batch of all drawables, resetting it to its default initialized state.
      */
-    public void addDrawable(Drawable drawable) {
+    private void clear() {
 
-        // Get index and add render object.
-        int index = numDrawables;
-        drawables[index] = drawable;
-        numDrawables++;
+        for (int i = 0; i < vertices.length; i++) {
 
-        // Check if drawable has texture; if so, add to list if not already loaded.
-        if (drawable.getTexture() != null) {
-            if (!textures.contains(drawable.getTexture())) {
-                textures.add(drawable.getTexture());
-            }
+            vertices[i] = 0;
         }
+        for (int i = 0; i < drawables.length; i++) {
 
-        // Add properties to local vertices array.
-        loadVertexProperties(index);
-
-        // Check if batch has run out of room.
-        if (numDrawables >= maxBatchSize) {
-            hasRoom = false;
+            drawables[i] = null;
         }
+        numDrawables = 0;
+        textures.clear();
+        hasRoom = true;
     }
 
 
@@ -391,6 +402,10 @@ public class DrawableBatch {
 
 
     // GETTERS
+    public boolean hasDrawable() {
+        return numDrawables > 0;
+    }
+
     public boolean hasRoom() {
         return hasRoom;
     }

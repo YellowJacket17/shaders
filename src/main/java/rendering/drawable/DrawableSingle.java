@@ -74,6 +74,11 @@ public class DrawableSingle {
     private Drawable drawable;
 
     /**
+     * Boolean indicating whether a drawable is occupying this single.
+     */
+    private boolean available;
+
+    /**
      * Total number of floats in each vertex of the vertex array.
      * Remember that a vertex represents a corner of a quad being rendered in this case.
      */
@@ -155,33 +160,54 @@ public class DrawableSingle {
 
 
     /**
+     * Renders this single then clears its drawable.
+     */
+    public void flush() {
+
+        render();
+        clear();
+    }
+
+
+    /**
+     * Sets a drawable to render.
+     *
+     * @param drawable Drawable instance to set
+     */
+    public void setDrawable(Drawable drawable) {
+
+        this.drawable = drawable;
+        loadVertexProperties();
+        available = false;
+    }
+
+
+    /**
+     * Sets the radius of the arc at the four corners of the quad.
+     *
+     * @param radius arc radius
+     */
+    public void setRadius(int radius) {
+
+        this.radius = radius;
+    }
+
+
+    /**
      * Renders all drawables in this batch.
      */
-    public void render() {
+    private void render() {
 
-        // Update each drawable with new position, color, and texture if applicable.
-        boolean rebufferData = false;
-
-        if (drawable.isDirty()) {
-
-            loadVertexProperties();
-            drawable.setClean();
-            rebufferData = true;
-        }
-
-        // Rebuffer all data if anything has changed since last render operation.
-        if (rebufferData) {
-
-            glBindBuffer(GL_ARRAY_BUFFER, vboId);
-            glBufferSubData(GL_ARRAY_BUFFER, 0, vertices);
-        }
+        // Rebuffer all data.
+        glBindBuffer(GL_ARRAY_BUFFER, vboId);
+        glBufferSubData(GL_ARRAY_BUFFER, 0, vertices);
 
         // Bind shader program.
         shader.use();
 
         // Camera.
-        shader.uploadMat4f("uProjection", gp.getCamera().getProjectionMatrix());
-        shader.uploadMat4f("uView", gp.getCamera().getViewMatrix());
+        shader.uploadMat4f("uProjection", gp.getSystemCamera().getProjectionMatrix());
+        shader.uploadMat4f("uView", gp.getSystemCamera().getViewMatrix());
         shader.uploadVec2f("uDimensions", new Vector2f(drawable.transform.scale.x, drawable.transform.scale.y));
         shader.uploadFloat("uRadius", radius);
 
@@ -214,25 +240,17 @@ public class DrawableSingle {
 
 
     /**
-     * Sets a drawable to render.
-     *
-     * @param drawable Drawable instance to set
+     * Clears the drawable from this single, resetting it to its default initialized state.
      */
-    public void setDrawable(Drawable drawable) {
+    private void clear() {
 
-        this.drawable = drawable;
-        loadVertexProperties();
-    }
+        for (int i = 0; i < vertices.length; i++) {
 
-
-    /**
-     * Sets the radius of the arc at the four corners of the quad.
-     *
-     * @param radius arc radius
-     */
-    public void setRadius(int radius) {
-
-        this.radius = radius;
+            vertices[i] = 0;
+        }
+        drawable = null;
+        radius = 0;
+        available = true;
     }
 
 
@@ -322,5 +340,11 @@ public class DrawableSingle {
             // Increment.
             offset += vertexSize;
         }
+    }
+
+
+    // GETTER
+    public boolean isAvailable() {
+        return available;
     }
 }

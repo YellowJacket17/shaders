@@ -1,5 +1,6 @@
 package core;
 
+import static org.lwjgl.glfw.GLFW.*;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
 import rendering.*;
@@ -23,9 +24,9 @@ public class GamePanel  {
 
     // SCREEN SETTINGS
     /**
-     * Game camera.
+     * System camera.
      */
-    private Camera camera;
+    private SystemCamera systemCamera;
 
     /**
      * Native tile size of rendered tiles.
@@ -76,7 +77,7 @@ public class GamePanel  {
      */
     public void init() {
 
-        camera = new Camera(nativeScreenWidth, nativeScreenHeight, new Vector2f());
+        systemCamera = new SystemCamera(nativeScreenWidth, nativeScreenHeight);
         loadResources();
         initGameObjects();
     }
@@ -123,23 +124,6 @@ public class GamePanel  {
                 new Transform(new Vector2f(32, 40), new Vector2f(sprite.getNativeWidth(), sprite.getNativeHeight())),
                 sprite);
         gameObjects.add(gameObject2);
-
-        // Add game objects to renderer.
-        int i = 1;
-        for (Drawable gameObject : gameObjects) {
-            System.out.println("Adding Game Object " + i);
-            i++;
-            renderer.addDrawable(gameObject);
-        }
-        System.out.println("Finished");
-
-        // Add round rectangle to renderer.
-        renderer.addRoundRectangle(new Vector4f(0, 191, 255, 180),
-                new Transform(new Vector2f(5, 300), new Vector2f(120, 60)), 20);
-
-        // Add rectangle to renderer.
-        renderer.addRectangle(new Vector4f(0, 255, 0, 100),
-                new Transform(new Vector2f(150, 90), new Vector2f(200, 75)));
     }
 
 
@@ -151,22 +135,42 @@ public class GamePanel  {
         // Print FPS.
 //        System.out.println((1.0 / dt) + " FPS");
 
-        gameObject1.transform.position.x += 2;
+        // Keyboard input.
+        if (KeyListener.isKeyPressed(GLFW_KEY_SPACE)) {
+            systemCamera.adjustPosition(new Vector2f(50, 50));
+        }
 
+        // Update each game object.
+        gameObject1.transform.position.x += 2;
+        for (Drawable gameObject : gameObjects) {
+            gameObject.update();
+        }
+
+        // Add game objects to render pipeline.
+        for (Drawable gameObject : gameObjects) {
+            renderer.addDrawable(gameObject);
+        }
+
+        // Add round rectangle to render pipeline.
+        renderer.addRoundRectangle(new Vector4f(0, 191, 255, 180),
+                new Transform(new Vector2f(5, 300), new Vector2f(120, 60)), 20);
+
+        // Add square rectangle to render pipeline.
+        renderer.addRectangle(new Vector4f(0, 255, 0, 100),
+                new Transform(new Vector2f(150, 90), new Vector2f(200, 75)));
+
+        // Add text to render pipeline.
         renderer.addString("Hello, World! g p y", 0, 0, 0.5f, new Vector3f(0, 0, 0), "Arimo");
         renderer.addString("Have a great day?", 0, 90, 0.3f, new Vector3f(0, 0, 0), "Arimo Bold");
         renderer.addString("Yes indeed.", 20, 130, 0.5f, new Vector3f(200, 143, 15), "Arimo");
 
-        // Update each game object.
-        for (Drawable gameObject : gameObjects) {
-            gameObject.update();
-        }
+        // Render.
         renderer.render();
     }
 
 
     // GETTERS
-    public Camera getCamera() {
-        return camera;
+    public SystemCamera getSystemCamera() {
+        return systemCamera;
     }
 }

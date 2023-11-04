@@ -4,9 +4,11 @@ import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.joml.Vector2f;
 
-public class Camera {
+public class SystemCamera {
 
     /*
+     * Below are general definitions for the projection, view, and position matrices.
+     *
      * The perspective matrix retains perspective.
      * For example, as an object gets further away from the camera, it appears smaller.
      *
@@ -39,20 +41,23 @@ public class Camera {
      * Projection matrix.
      * The projection matrix determines how large the screen space is.
      * In this case, the projection matrix is an orthographic matrix of fixed perspective.
+     * In this application, it will always be fixed unless debugging.
      */
-    private Matrix4f projectionMatrix;
+    private final Matrix4f projectionMatrix;
 
     /**
      * View matrix.
-     * The view matrix determines where the camera is in relation to the screen space.
+     * The view matrix determines where the system camera is in relation to the screen space.
+     * In this application, it will always be fixed unless debugging.
      */
-    private Matrix4f viewMatrix;
+    private final Matrix4f viewMatrix;
 
     /**
      * Position matrix.
      * The position matrix determines what the screen space coordinates are.
+     * For this application, it will always be fixed unless debugging.
      */
-    private Vector2f position;
+    private final Vector2f positionMatrix;
 
     /**
      * Visible screen width.
@@ -73,53 +78,86 @@ public class Camera {
      *
      * @param screenWidth visible screen width (NOT necessarily pixels but some amount of units)
      * @param screenHeight visible screen height (NOT necessarily pixels but some amount of units)
-     * @param position initial camera position (bottom-left coordinate)
      */
-    public Camera(int screenWidth, int screenHeight, Vector2f position) {
+    public SystemCamera(int screenWidth, int screenHeight) {
         this.screenWidth = screenWidth;
         this.screenHeight = screenHeight;
-        this.position = position;
+        this.positionMatrix = new Vector2f();
         this.projectionMatrix = new Matrix4f();
         this.viewMatrix = new Matrix4f();
         adjustProjection();
+        adjustView();
     }
 
 
     // METHODS
     /**
-     * Adjusts the projection matrix if the window size is changed.
+     * Adjusts the projection matrix.
+     * The current visible screen size (width and height) will be applied.
      */
     public void adjustProjection() {
 
         projectionMatrix.identity();                                                                                    // Sets the projection matrix to equal the identity matrix.
-        projectionMatrix.ortho(0.0f, (float)screenWidth, (float)screenHeight, 0.0f, 0.0f, 100.0f);                    // Screen coordinate (0, 0) is defined at the top-left.
+        projectionMatrix.ortho(0.0f, (float)screenWidth, (float)screenHeight, 0.0f, 0.0f, 100.0f);                      // Screen coordinate (0, 0) is defined at the top-left.
     }
 
 
     /**
-     * Retrieves the projection matrix, which is an orthographic matrix of fixed perspective.
+     * Adjusts the view matrix.
+     * The current position matrix will be applied.
+     */
+    public void adjustView() {
+
+        Vector3f cameraFront = new Vector3f(0.0f, 0.0f, -1.0f);                                                         // Camera pointing in -1 of the z direction.
+        Vector3f cameraUp = new Vector3f(0.0f, 1.0f, 0.0f);
+        viewMatrix.identity();                                                                                          // Modifies the view matrix directly
+        viewMatrix.lookAt(new Vector3f(positionMatrix.x, positionMatrix.y, 20.0f),
+                cameraFront.add(positionMatrix.x, positionMatrix.y, 0.0f),
+                cameraUp);                                                                                              // Modifies the view matrix directly.
+    }
+
+
+    /**
+     * Adjusts the position matrix.
+     *
+     * @param position system camera position (top-left coordinate)
+     */
+    public void adjustPosition(Vector2f position) {
+
+        this.positionMatrix.set(position);
+        adjustView();
+    }
+
+
+    /**
+     * Retrieves the projection matrix.
      *
      * @return perspective matrix
      */
     public Matrix4f getProjectionMatrix() {
 
-        return this.projectionMatrix;
+        return projectionMatrix;
     }
 
 
     /**
-     * Retrieves the view matrix, which defines where the camera is looking from.
+     * Retrieves the view matrix.
      *
      * @return view matrix
      */
     public Matrix4f getViewMatrix() {
 
-        Vector3f cameraFront = new Vector3f(0.0f, 0.0f, -1.0f);                                                         // Camera pointing in -1 of the z direction.
-        Vector3f cameraUp = new Vector3f(0.0f, 1.0f, 0.0f);
-        viewMatrix.identity();                                                                                          // Modifies the view matrix directly
-        viewMatrix.lookAt(new Vector3f(position.x, position.y, 20.0f),
-                                            cameraFront.add(position.x, position.y, 0.0f),
-                                            cameraUp);                                                                  // Modifies the view matrix directly.
         return viewMatrix;
+    }
+
+
+    /**
+     * Retrieves the position matrix.
+     *
+     * @return position matrix
+     */
+    public Vector2f getPositionMatrix() {
+
+        return positionMatrix;
     }
 }

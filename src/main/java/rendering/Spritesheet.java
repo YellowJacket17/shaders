@@ -82,8 +82,8 @@ public class Spritesheet {
      *
      * @param texture parent texture of this spritesheet to derive sprites from
      * @param numSprites number of sprites contained within this spritesheet
-     * @param spriteWidths native width of each sprite in this spritesheet, ordered left-to-right, top-to-bottom
-     * @param spriteHeights native height of each sprite in this spritesheet, ordered left-to-right, top-to-bottom
+     * @param spriteWidths native width of each sprite in this spritesheet, ordered left-to-right, bottom-to-top
+     * @param spriteHeights native height of each sprite in this spritesheet, ordered left-to-right, bottom-to-top
      * @param spacing native spacing between each sprite in this spritesheet
      */
     public Spritesheet(Texture texture, int numSprites, int[] spriteWidths, int[] spriteHeights, int spacing) {

@@ -98,4 +98,20 @@ public class Sprite {
     public int getNativeHeight() {
         return nativeHeight;
     }
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null) {
+            return false;
+        }
+        if (!(o instanceof Sprite)) {
+            return false;
+        }
+        Sprite oSprite = (Sprite)o;
+        return (oSprite.getTexture().equals(this.texture))
+                && (oSprite.getTextureCoords().equals(this.textureCoords))
+                && (oSprite.getNativeWidth() == this.nativeWidth)
+                && (oSprite.getNativeHeight() == this.nativeHeight);
+    }
 }

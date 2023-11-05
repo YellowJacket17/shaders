@@ -7,6 +7,7 @@ import java.nio.IntBuffer;
 
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.stb.STBImage.*;
+import static org.lwjgl.system.MemoryUtil.memFree;
 
 /**
  * This class defines a texture to be bound to a drawn object.
@@ -106,30 +107,34 @@ public class Texture {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
         // Load image.
-        IntBuffer width = BufferUtils.createIntBuffer(1);
-        IntBuffer height = BufferUtils.createIntBuffer(1);
-        IntBuffer channels = BufferUtils.createIntBuffer(1);                                                            // rgb or rgba.
-//        stbi_set_flip_vertically_on_load(true);  // Load image upside-down.
-        ByteBuffer buffer = stbi_load(filePath, width, height, channels, 0);
+        IntBuffer bufferWidth = BufferUtils.createIntBuffer(1);
+        IntBuffer bufferHeight = BufferUtils.createIntBuffer(1);
+        IntBuffer bufferChannels = BufferUtils.createIntBuffer(1);                                                      // rgb or rgba.
+        ByteBuffer buffer = stbi_load(filePath, bufferWidth, bufferHeight, bufferChannels, 0);
         if (buffer != null) {
-            if (channels.get(0) == 3) {                                                                                 // rbg image.
-                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width.get(0), height.get(0),                                     // Upload image to GPU.
+            if (bufferChannels.get(0) == 3) {                                                                           // rbg image.
+                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, bufferWidth.get(0), bufferHeight.get(0),                         // Upload image to GPU.
                         0, GL_RGB, GL_UNSIGNED_BYTE, buffer);
-            } else if (channels.get(0) == 4) {                                                                          // rgba image.
-                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width.get(0), height.get(0),                                    // Upload image to GPU.
+            } else if (bufferChannels.get(0) == 4) {                                                                    // rgba image.
+                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, bufferWidth.get(0), bufferHeight.get(0),                        // Upload image to GPU.
                         0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
             } else {
                 // TODO : Throw new AssetLoadException in actual program here.
-                throw new RuntimeException("Unexpected number of channels (" + channels.get(0)
+                throw new RuntimeException("Unexpected number of channels (" + bufferChannels.get(0)
                         + ") in image for texture loaded from " + filePath);
             }
-            nativeWidth = width.get(0);
-            nativeHeight = height.get(0);
+            nativeWidth = bufferWidth.get(0);
+            nativeHeight = bufferHeight.get(0);
         } else {
             // TODO : Throw new AssetLoadException in actual program here.
             throw new RuntimeException("Failed to load image for texture from " + filePath);
         }
-        stbi_image_free(buffer);                                                                                         // Free memory, since image has now been uploaded to GPU.
+
+        // Free memory.
+        stbi_image_free(buffer);
+        memFree(bufferWidth);
+        memFree(bufferHeight);
+        memFree(bufferChannels);
     }
 
 

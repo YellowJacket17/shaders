@@ -97,7 +97,7 @@ public class GamePanel  {
         String filePath = "/characters/spritesheets/transparent.png";
         AssetPool.addSpritesheet(new Spritesheet(AssetPool.getTexture(filePath), 6, 32, 48, 0));
 
-        filePath = "e/landmarks/spritesheets/transparent.png";
+        filePath = "/landmarks/spritesheets/transparent.png";
         int[] widths = new int[] {62, 32};
         int[] heights = new int[] {90, 70};
         AssetPool.addSpritesheet(new Spritesheet(AssetPool.getTexture(filePath), 2, widths, heights, 2));

@@ -5,7 +5,7 @@ import org.joml.Vector2f;
 import org.joml.Vector4f;
 import rendering.Shader;
 import rendering.Texture;
-import utilities.AssetPool;
+import utility.AssetPool;
 
 import java.util.ArrayList;
 

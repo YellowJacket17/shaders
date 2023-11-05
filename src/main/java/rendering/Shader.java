@@ -255,8 +255,8 @@ public class Shader {
             }
 
         } catch (IOException e) {
-            // TODO : Throw new AssetLoadException in actual program here.
             e.printStackTrace();
+            // TODO : Replace with AssetLoadException.
             throw new RuntimeException("Failed to open file for shader from " + filePath);
         }
     }
@@ -275,6 +275,7 @@ public class Shader {
         if (success == GL_FALSE) {                                                                                      // Check for compilation errors.
             int length = glGetShaderi(vertexId, GL_INFO_LOG_LENGTH);
             System.out.println(glGetShaderInfoLog(vertexId, length));
+            // TODO : Replace with more specific exception.
             throw new RuntimeException("Failed to compile vertex shader from " + filePath);
         }
 
@@ -286,6 +287,7 @@ public class Shader {
         if (success == GL_FALSE) {                                                                                      // Check for compilation errors.
             int length = glGetShaderi(fragmentId, GL_INFO_LOG_LENGTH);
             System.out.println(glGetShaderInfoLog(fragmentId, length));
+            // TODO : Replace with more specific exception.
             throw new RuntimeException("Failed to compile fragment shader from " + filePath);
         }
 
@@ -298,7 +300,7 @@ public class Shader {
         if (success == GL_FALSE) {
             int length = glGetProgrami(shaderProgramId, GL_INFO_LOG_LENGTH);
             System.out.println(glGetProgramInfoLog(shaderProgramId, length));
-            // TODO : Change this exception in final build.
+            // TODO : Replace with more specific exception.
             throw new RuntimeException("Failed to link shaders from " + filePath);
         }
     }

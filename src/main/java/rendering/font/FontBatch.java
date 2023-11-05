@@ -3,7 +3,7 @@ package rendering.font;
 import core.GamePanel;
 import org.joml.Vector3f;
 import rendering.Shader;
-import utilities.AssetPool;
+import utility.AssetPool;
 
 import static org.lwjgl.opengl.GL15.*;
 import static org.lwjgl.opengl.GL20.glEnableVertexAttribArray;

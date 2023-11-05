@@ -1,6 +1,7 @@
 package rendering;
 
 import org.lwjgl.BufferUtils;
+import utility.UtilityTool;
 
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
@@ -43,7 +44,7 @@ public class Texture {
      * Note that as many textures as desired can be uploaded to the GPU as long as memory permits.
      * This should not be confused with the number of slots available for binding on the GPU for texture sampling.
      *
-     * @param filePath file path of texture from program root
+     * @param filePath file path of texture from resources directory
      */
     public Texture(String filePath) {
         this.filePath = filePath;
@@ -110,28 +111,29 @@ public class Texture {
         IntBuffer bufferWidth = BufferUtils.createIntBuffer(1);
         IntBuffer bufferHeight = BufferUtils.createIntBuffer(1);
         IntBuffer bufferChannels = BufferUtils.createIntBuffer(1);                                                      // rgb or rgba.
-        ByteBuffer buffer = stbi_load(filePath, bufferWidth, bufferHeight, bufferChannels, 0);
-        if (buffer != null) {
+        ByteBuffer image = UtilityTool.ioResourceToByteBuffer(filePath, 4096);
+        ByteBuffer pixels = stbi_load_from_memory(image, bufferWidth, bufferHeight, bufferChannels, 0);
+        if (pixels != null) {
             if (bufferChannels.get(0) == 3) {                                                                           // rbg image.
                 glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, bufferWidth.get(0), bufferHeight.get(0),                         // Upload image to GPU.
-                        0, GL_RGB, GL_UNSIGNED_BYTE, buffer);
+                        0, GL_RGB, GL_UNSIGNED_BYTE, pixels);
             } else if (bufferChannels.get(0) == 4) {                                                                    // rgba image.
                 glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, bufferWidth.get(0), bufferHeight.get(0),                        // Upload image to GPU.
-                        0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
+                        0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
             } else {
-                // TODO : Throw new AssetLoadException in actual program here.
+                // TODO : Replace with AssetLoadException.
                 throw new RuntimeException("Unexpected number of channels (" + bufferChannels.get(0)
                         + ") in image for texture loaded from " + filePath);
             }
             nativeWidth = bufferWidth.get(0);
             nativeHeight = bufferHeight.get(0);
         } else {
-            // TODO : Throw new AssetLoadException in actual program here.
-            throw new RuntimeException("Failed to load image for texture from " + filePath);
+            // TODO : Replace with AssetLoadException.
+            throw new RuntimeException("Failed to load texture from " + filePath);
         }
 
         // Free memory.
-        stbi_image_free(buffer);
+        stbi_image_free(pixels);
         memFree(bufferWidth);
         memFree(bufferHeight);
         memFree(bufferChannels);

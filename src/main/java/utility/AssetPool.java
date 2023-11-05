@@ -1,10 +1,9 @@
-package utilities;
+package utility;
 
 import rendering.Shader;
 import rendering.Spritesheet;
 import rendering.Texture;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -57,7 +56,7 @@ public class AssetPool {
      * Returns a texture loaded into memory.
      * If the specified texture is not yet loaded, it will first be loaded from file and then returned.
      *
-     * @param resourceName file path of texture from program root
+     * @param resourceName file path of texture from resources directory
      * @return texture
      */
     public static Texture getTexture(String resourceName) {

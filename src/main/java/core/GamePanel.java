@@ -6,7 +6,7 @@ import org.joml.Vector4f;
 import rendering.*;
 import org.joml.Vector2f;
 import rendering.drawable.Drawable;
-import utilities.AssetPool;
+import utility.AssetPool;
 
 import java.util.ArrayList;
 
@@ -94,10 +94,10 @@ public class GamePanel  {
         AssetPool.getShader("/shaders/font.glsl");
 
         // Spritesheets.
-        String filePath = "src/main/resources/characters/spritesheets/transparent.png";
+        String filePath = "/characters/spritesheets/transparent.png";
         AssetPool.addSpritesheet(new Spritesheet(AssetPool.getTexture(filePath), 6, 32, 48, 0));
 
-        filePath = "src/main/resources/landmarks/spritesheets/transparent.png";
+        filePath = "e/landmarks/spritesheets/transparent.png";
         int[] widths = new int[] {62, 32};
         int[] heights = new int[] {90, 70};
         AssetPool.addSpritesheet(new Spritesheet(AssetPool.getTexture(filePath), 2, widths, heights, 2));

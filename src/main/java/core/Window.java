@@ -1,5 +1,6 @@
 package core;
 
+import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.glfw.GLFWWindowSizeCallback;
 import org.lwjgl.opengl.GL;
 import rendering.Framebuffer;
@@ -28,9 +29,9 @@ public class Window {
     private GamePanel gp;
 
     /**
-     * Framebuffer instance.
+     * Maximum permitted frame rate.
      */
-    private Framebuffer framebuffer;
+    private int frameRateCap = 60;
 
 
     // WINDOW PROPERTIES
@@ -120,7 +121,7 @@ public class Window {
         glfwMakeContextCurrent(glfwWindow);
 
         // Enable v-sync.
-        glfwSwapInterval(1);                                                                                            // Locks FPS to interval rate (frame rate) of physical display.
+        glfwSwapInterval(1);                                                                                            // Lock frames per second to interval rate (frame rate) of physical display.
 
         // Make window visible.
         glfwShowWindow(glfwWindow);
@@ -133,10 +134,6 @@ public class Window {
         // Enable blending (alpha values).
         glEnable(GL_BLEND);
         glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-
-        // Create framebuffer.
-        // TODO : Query for current monitor's actual size to pass as arguments.
-        framebuffer = new Framebuffer(3840, 2160);
     }
 
 
@@ -155,47 +152,41 @@ public class Window {
      */
     public void run() {
 
-        // Initialize time tracking variables.
-        double startTime = glfwGetTime();
-        double endTime;
-        double dt = -1.0f;
+        // Initialize variables for tracking time.
+        // Note that `glfwGetTime()` returns time elapsed since GLFW was initialized.
+        double endLoopTime = glfwGetTime();                                                                             // Time at the end of a complete loop (used for limiting frame rate).
+        double startFrameTime = glfwGetTime();                                                                          // Time at the start of a frame.
+        double endFrameTime = 0;                                                                                        // Time at the end of a frame.
+        double dt = 0;                                                                                                  // Time between each rendered frame (frame pacing).
 
         // Core game loop.
         while (!glfwWindowShouldClose(glfwWindow)) {
 
-            // Poll events.
-            glfwPollEvents();
+            // Prepare the frame.
+            glClearColor(r, g, b, a);                                                                                   // Set window clear color.
+            glClear(GL_COLOR_BUFFER_BIT);                                                                               // Tell OpenGL how to clear the buffer.
 
-            // Bind framebuffer.
-//            this.framebuffer.bind();
+            // Poll, update, and render.
+            glfwPollEvents();                                                                                           // Poll user input (keyboard, gamepad, etc.).
+            gp.update();                                                                                                // Update all game logic by one frame.
+            gp.render();                                                                                                // Render the updated frame.
 
-            // Prepare the frame (perhaps move into draw method OR at least in (dt >= 0) statement).
-            glClearColor(r, g, b, a);
-            glClear(GL_COLOR_BUFFER_BIT);  // Tell OpenGL how to clear the buffer.
-
-            // Check if a new frame must be rendered.
-            if (dt >= 0) {
-
-                // 1. UPDATE
-                gp.update();
-
-                // 2. DRAW?
-            }
-
-            // Unbind framebuffer.
-//            this.framebuffer.unbind();
-
-            // Swap buffers automatically.
+            // Swap front and back window buffers.
             glfwSwapBuffers(glfwWindow);
 
-            // Iterate time.
-            endTime = glfwGetTime();
-            dt = endTime - startTime;
-            startTime = endTime;
+            // Iterate frame time.
+            endFrameTime = glfwGetTime();                                                                               // Time at the end of this frame.
+            dt = endFrameTime - startFrameTime;                                                                         // Amount of time lapsed to render the previous frame.
+            startFrameTime = endFrameTime;                                                                              // Time at the start of the next frame.
+
+            // Iterate loop time + limit frame rate if needed.
+            while (glfwGetTime() < (endLoopTime + (1.0 / frameRateCap))) {}                                             // Wait if frame rate cap is lower than refresh rate from v-sync.
+            endLoopTime += 1.0 / frameRateCap;                                                                          // Time at the end of this loop.
+//            System.out.println(1.0 / dt + " FPS");
         }
 
         // Free memory.
-        glfwFreeCallbacks(glfwWindow);  // Free any callbacks attached to the window.
+        glfwFreeCallbacks(glfwWindow);                                                                                  // Free any callbacks attached to the window.
         glfwDestroyWindow(glfwWindow);
 
         // Terminate GLFW.

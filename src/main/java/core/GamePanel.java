@@ -132,9 +132,6 @@ public class GamePanel  {
      */
     public void update() {
 
-        // Print FPS.
-//        System.out.println((1.0 / dt) + " FPS");
-
         // Keyboard input.
         if (KeyListener.isKeyPressed(GLFW_KEY_SPACE)) {
             systemCamera.adjustPosition(new Vector2f(50, 20));
@@ -163,8 +160,14 @@ public class GamePanel  {
         renderer.addString("Hello, World! g p y", 0, 0, 0.5f, new Vector3f(0, 0, 0), "Arimo");
         renderer.addString("Have a great day?", 0, 90, 0.3f, new Vector3f(0, 0, 0), "Arimo Bold");
         renderer.addString("Yes indeed.", 20, 130, 0.5f, new Vector3f(200, 143, 15), "Arimo");
+    }
 
-        // Render.
+
+    /**
+     * Renders all items in the render pipeline.
+     */
+    public void render() {
+
         renderer.render();
     }
 

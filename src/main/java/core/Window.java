@@ -154,7 +154,7 @@ public class Window {
     public void run() {
 
         // Initialize variables for tracking time.
-        // Note that `glfwGetTime()` returns time elapsed since GLFW was initialized.
+        // Note that `glfwGetTime()` returns time (seconds) elapsed since GLFW was initialized.
         double endLoopTime = glfwGetTime();                                                                             // Time at the end of a complete loop (used for limiting frame rate).
         double startFrameTime = glfwGetTime();                                                                          // Time at the start of a frame.
         double endFrameTime = 0;                                                                                        // Time at the end of a frame.
@@ -169,7 +169,7 @@ public class Window {
 
             // Poll, update, and render.
             glfwPollEvents();                                                                                           // Poll user input (keyboard, gamepad, etc.).
-            gp.update();                                                                                                // Update all game logic by one frame.
+            gp.update(dt);                                                                                              // Update all game logic by one frame.
             gp.render();                                                                                                // Render the updated frame.
 
             // Swap front and back window buffers.

@@ -61,6 +61,11 @@ public class GamePanel  {
      */
     private final ArrayList<Drawable> gameObjects = new ArrayList<>();
 
+    /**
+     * Tracks time for motion of game object 1.
+     */
+    private double motionTracker = 0;
+
 
     // CONSTRUCTOR
     /**
@@ -128,7 +133,7 @@ public class GamePanel  {
     /**
      * Progresses the state of the entire game by one frame.
      */
-    public void update() {
+    public void update(double dt) {
 
         // Keyboard input.
         if (KeyListener.isKeyPressed(GLFW_KEY_SPACE)) {
@@ -136,7 +141,8 @@ public class GamePanel  {
         }
 
         // Update each game object.
-        gameObjects.get(0).transform.position.x += 2;
+        // Game object 1 will move 120 units per second to the right, regardless of frame rate.
+        gameObjects.get(0).transform.position.x += 120 * dt;
         for (Drawable gameObject : gameObjects) {
             gameObject.update();
         }

@@ -6,7 +6,7 @@ import java.util.ArrayList;
 
 /**
  * This class represent a spritesheet that contains many sprites to be extracted.
- * A spritesheet is an parent entire texture, while a sprite is a section of a spritesheet (i.e., texture).
+ * A spritesheet is a parent entire texture, while a sprite is a section of a spritesheet (i.e., texture).
  */
 public class Spritesheet {
 

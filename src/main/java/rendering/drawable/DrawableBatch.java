@@ -8,6 +8,7 @@ import rendering.Texture;
 import utility.AssetPool;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import static org.lwjgl.opengl.GL15.*;
 import static org.lwjgl.opengl.GL20.*;
@@ -214,7 +215,7 @@ public class DrawableBatch {
 
         // Bind textures.
         for (int i = 0; i < textures.size(); i++) {
-            glActiveTexture(GL_TEXTURE0 + i + 1);                                                                       // Activate texture in appropriate slot; slot zero is reserved for the empty texture.
+            glActiveTexture(GL_TEXTURE0 + i + 1);                                                                       // Activate texture in appropriate slot; slot 0 is reserved for the empty texture.
             textures.get(i).bind();
         }
         shader.uploadIntArray("uTextures", textureSlots);                                                               // Use multiple textures in shader (up to seven plus the empty texture).
@@ -245,14 +246,8 @@ public class DrawableBatch {
      */
     private void clear() {
 
-        for (int i = 0; i < vertices.length; i++) {
-
-            vertices[i] = 0;
-        }
-        for (int i = 0; i < drawables.length; i++) {
-
-            drawables[i] = null;
-        }
+        Arrays.fill(vertices, 0);
+        Arrays.fill(drawables, null);
         numDrawables = 0;
         textures.clear();
         hasRoom = true;
@@ -357,7 +352,7 @@ public class DrawableBatch {
         if (drawable.getTexture() != null) {
             for (int i = 0; i < textures.size(); i++) {                                                                 // Find the texture ID; loop through all textures in this batch until we find a match, then assign corresponding ID.
                 if (textures.get(i).equals(drawable.getTexture())) {                                                    // Use `.equals()` because == only compares memory address of two objects, not actual contents.
-                    textureId = i + 1;                                                                                  // Texture slot 0 is reserved for no bound texture to sprite, hence why one is added.
+                    textureId = i + 1;                                                                                  // Texture slot 0 is reserved for no bound texture to sprite, hence why 1 is added.
                     break;
                 }
             }

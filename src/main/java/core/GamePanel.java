@@ -37,12 +37,12 @@ public class GamePanel  {
     /**
      * Tiles per column in the screen space.
      */
-    private final int maxScreenCol = 24; //40
+    private final int maxScreenCol = 24;
 
     /**
      * Tiles per row in the screen space.
      */
-    private final int maxScreenRow = 14; //21
+    private final int maxScreenRow = 14;
 
     /**
      * Native screen width as determined by the native tile size and number of columns.
@@ -60,8 +60,6 @@ public class GamePanel  {
      * List to store ame objects (i.e., drawable objects).
      */
     private final ArrayList<Drawable> gameObjects = new ArrayList<>();
-    private Drawable gameObject1;
-    private Drawable gameObject2;
 
 
     // CONSTRUCTOR
@@ -94,10 +92,10 @@ public class GamePanel  {
         AssetPool.getShader("/shaders/font.glsl");
 
         // Spritesheets.
-        String filePath = "/characters/spritesheets/transparent.png";
+        String filePath = "/characters/transparent.png";
         AssetPool.addSpritesheet(new Spritesheet(AssetPool.getTexture(filePath), 6, 32, 48, 0));
 
-        filePath = "/landmarks/spritesheets/transparent.png";
+        filePath = "/landmarks/transparent.png";
         int[] widths = new int[] {62, 32};
         int[] heights = new int[] {90, 70};
         AssetPool.addSpritesheet(new Spritesheet(AssetPool.getTexture(filePath), 2, widths, heights, 2));
@@ -114,13 +112,13 @@ public class GamePanel  {
 
         // Create game objects.
         Sprite sprite = sprites.getSprite(0);
-        gameObject1 = new Drawable("Obj1",
+        Drawable gameObject1 = new Drawable("Obj1",
                 new Transform(new Vector2f(0, 0), new Vector2f(sprite.getNativeWidth(), sprite.getNativeHeight())),
                 sprite);
         gameObjects.add(gameObject1);
 
         sprite = sprites.getSprite(3);
-        gameObject2 = new Drawable("Obj2",
+        Drawable gameObject2 = new Drawable("Obj2",
                 new Transform(new Vector2f(32, 40), new Vector2f(sprite.getNativeWidth(), sprite.getNativeHeight())),
                 sprite);
         gameObjects.add(gameObject2);
@@ -138,10 +136,17 @@ public class GamePanel  {
         }
 
         // Update each game object.
-        gameObject1.transform.position.x += 2;
+        gameObjects.get(0).transform.position.x += 2;
         for (Drawable gameObject : gameObjects) {
             gameObject.update();
         }
+    }
+
+
+    /**
+     * Sends necessary items to the render pipeline and renders them.
+     */
+    public void render() {
 
         // Add game objects to render pipeline.
         for (Drawable gameObject : gameObjects) {
@@ -160,14 +165,8 @@ public class GamePanel  {
         renderer.addString("Hello, World! g p y", 0, 0, 0.5f, new Vector3f(0, 0, 0), "Arimo");
         renderer.addString("Have a great day?", 0, 90, 0.3f, new Vector3f(0, 0, 0), "Arimo Bold");
         renderer.addString("Yes indeed.", 20, 130, 0.5f, new Vector3f(200, 143, 15), "Arimo");
-    }
 
-
-    /**
-     * Renders all items in the render pipeline.
-     */
-    public void render() {
-
+        // Render everything in pipeline.
         renderer.render();
     }
 

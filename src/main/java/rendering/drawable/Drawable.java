@@ -40,13 +40,13 @@ public class Drawable {
      * Constructs a Drawable instance.
      *
      * @param name name of this drawable
-     * @param color color of this drawable (r, g, b, a)
+     * @param sprite sprite this drawable
      */
     public Drawable(String name, Sprite sprite) {
         this.name = name;
         this.color = new Vector4f(255, 255, 255, 255);
         this.transform = new Transform();
-        this.sprite = new Sprite();
+        this.sprite = sprite;
     }
 
 

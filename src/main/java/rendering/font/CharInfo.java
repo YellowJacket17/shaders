@@ -39,7 +39,7 @@ public class CharInfo {
      * texture and (1, 1) is the top-right corner.
      *
      */
-    private final Vector2f textureCoords[] = new Vector2f[4];
+    private final Vector2f[] textureCoords = new Vector2f[4];
 
     /**
      * Width adjustment for this character when generating texture coordinates.

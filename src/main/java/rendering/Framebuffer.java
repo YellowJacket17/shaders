@@ -75,13 +75,13 @@ public class Framebuffer {
 
         // Check if everything generated correctly.
         if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
-            // TODO : Throw different type of RuntimeException here.
+            // TODO : Throw more specific exception.
             throw new RuntimeException("Failed to generate framebuffer");
         }
 
         // Bind framebuffer zero to display to window again.
         // When binding to a framebuffer, every subsequent render call will go to said framebuffer.
-        // So, when we previously bound to frambuffer fboId, all subsequent render calls would go there.
+        // So, when we previously bound to framebuffer fboId, all subsequent render calls would go there.
         // We're returning to directly rendering to the window for now.
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }

@@ -6,6 +6,8 @@ import org.joml.Vector4f;
 import rendering.Shader;
 import utility.AssetPool;
 
+import java.util.Arrays;
+
 import static org.lwjgl.opengl.GL15.*;
 import static org.lwjgl.opengl.GL20.*;
 import static org.lwjgl.opengl.GL20.glDisableVertexAttribArray;
@@ -101,6 +103,14 @@ public class DrawableSingle {
     private int vboId;
 
     /**
+     * Slots available to bind textures for sampling during a draw in this batch.
+     * In practice in this class, only two texture slots will ever be used: slot 0 (reserved for empty texture) and
+     * slot 1 (used if the drawable has a non-null texture).
+     * This array is defined so that this class is compatible with the shader, which supports eight textures.
+     */
+    private final int[] textureSlots = {0, 1, 2, 3, 4, 5, 6, 7};
+
+    /**
      * Shader attached to this rectangle.
      */
     private final Shader shader;
@@ -164,7 +174,7 @@ public class DrawableSingle {
      */
     private void render() {
 
-        // Rebuffer all data.
+        // Re-buffer all data.
         glBindBuffer(GL_ARRAY_BUFFER, vboId);
         glBufferSubData(GL_ARRAY_BUFFER, 0, vertices);
 
@@ -177,12 +187,12 @@ public class DrawableSingle {
         shader.uploadVec2f("uDimensions", new Vector2f(drawable.transform.scale.x, drawable.transform.scale.y));
         shader.uploadFloat("uRadius", radius);
 
-        // Bind textures.
+        // Bind texture.
         if (drawable.getTexture() != null) {
-            glActiveTexture(GL_TEXTURE0);                                                                               // Activate texture in slot zero.
+            glActiveTexture(GL_TEXTURE0 + 1);                                                                           // Activate texture in slot 1.
             drawable.getTexture().bind();
         }
-        shader.uploadFloat("uTexture", 0);                                                                              // Use texture in slot zero.
+        shader.uploadIntArray("uTextures", textureSlots);
 
         // Bind VAO being used.
         glBindVertexArray(vaoId);
@@ -210,10 +220,7 @@ public class DrawableSingle {
      */
     private void clear() {
 
-        for (int i = 0; i < vertices.length; i++) {
-
-            vertices[i] = 0;
-        }
+        Arrays.fill(vertices, 0);
         drawable = null;
         radius = 0;
         available = true;
@@ -302,7 +309,7 @@ public class DrawableSingle {
         Vector2f[] textureCoords = drawable.getTextureCoords();
         int textureId = 0;
         if (drawable.getTexture() != null) {
-            textureId = 0;                                                                                              // Texture slot 0.
+            textureId = 1;                                                                                              // Texture slot 0 is reserved for no bound texture to sprite, hence why slot 1 is set here.
         }
 
         // Add vertices with appropriate properties.

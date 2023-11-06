@@ -47,7 +47,7 @@ public class Text {
      * @param screenX x-coordinate (leftmost) of text
      * @param screenY y-coordinate (topmost) of text
      * @param scale scale factor compared to native font size
-     * @param rgb color in hexadecimal format
+     * @param color color in hexadecimal format
      * @param font font name
      */
     public Text(String text, int screenX, int screenY, float scale, Vector3f color, String font) {

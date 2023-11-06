@@ -2,6 +2,8 @@ package rendering;
 
 import org.joml.Vector2f;
 
+import java.util.Arrays;
+
 /**
  * This class represents an individual sprite extracted from a spritesheet.
  */
@@ -36,13 +38,12 @@ public class Sprite {
      * Constructs a null Sprite instance.
      */
     public Sprite() {
-        Vector2f[] textureCoords = {
+        this.textureCoords = new Vector2f[] {
                 new Vector2f(1, 1),
                 new Vector2f(1, 0),
                 new Vector2f(0, 0),
                 new Vector2f(0, 1)
         };
-        this.textureCoords = textureCoords;
         this.nativeWidth = 0;
         this.nativeHeight = 0;
     }
@@ -92,7 +93,7 @@ public class Sprite {
         }
         Sprite oSprite = (Sprite)o;
         return (oSprite.getTexture().equals(this.texture))
-                && (oSprite.getTextureCoords().equals(this.textureCoords))
+                && (Arrays.equals(oSprite.getTextureCoords(), this.textureCoords))
                 && (oSprite.getNativeWidth() == this.nativeWidth)
                 && (oSprite.getNativeHeight() == this.nativeHeight);
     }

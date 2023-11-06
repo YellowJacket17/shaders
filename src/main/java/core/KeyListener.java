@@ -17,7 +17,7 @@ public class KeyListener {
     /**
      * Boolean tracking which keys are currently pressed.
      */
-    private boolean keyPressed[] = new boolean[350];
+    private final boolean[] keyPressed = new boolean[350];
 
 
     // CONSTRUCTOR

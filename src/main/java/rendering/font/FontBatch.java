@@ -5,6 +5,8 @@ import org.joml.Vector3f;
 import rendering.Shader;
 import utility.AssetPool;
 
+import java.util.Arrays;
+
 import static org.lwjgl.opengl.GL15.*;
 import static org.lwjgl.opengl.GL20.glEnableVertexAttribArray;
 import static org.lwjgl.opengl.GL20.glVertexAttribPointer;
@@ -150,11 +152,9 @@ public class FontBatch {
 
             if (charInfo.getWidth() == 0) {
 
-                // TODO : Could generate error for unknown character.
+                // TODO : Log error here.
             }
-            float xPos = x;
-            float yPos = y;
-            addCharacter(xPos, yPos, scale, charInfo, color);                                                           // Add character to batch.                                                    // Adds character to batch.
+            addCharacter(x, y, scale, charInfo, color);                                                                 // Add character to batch.                                                    // Adds character to batch.
             x += charInfo.getWidth() * scale;                                                                           // Prepare for next character in string.
         }
     }
@@ -179,13 +179,13 @@ public class FontBatch {
         float g = color.y / 255;                                                                                        // Extract green information.
         float b = color.z / 255;                                                                                        // Extract blue information.
 
-        float x0 = x;                                                                                                   // Top-left corner (remember that positive Y is down).
+        float x0 = x;                                                                                                   // Top-left corner (remember that positive y-direction is defined as down in this application).
         float y0 = y;                                                                                                   // ^^^
-        float x1 = x + (scale * charInfo.getWidth());                                                                   // Bottom-right corner (remember that positive Y is down).
+        float x1 = x + (scale * charInfo.getWidth());                                                                   // Bottom-right corner (remember that positive y-direction is defined as down in this application).
         float y1 = y + (scale * (charInfo.getHeight() + charInfo.getDescent()));                                        // ^^^ (also, modifying this value affects how "stretched" the text appears)
 
         float ux0 = charInfo.getTextureCoords()[0].x;
-        float uy0 = charInfo.getTextureCoords()[1].y;                                                                   // Flipped with `uy1` since positive Y is defined as down here.
+        float uy0 = charInfo.getTextureCoords()[1].y;                                                                   // Flipped with `uy1` since positive y-direction is defined as down in this application.
         float ux1 = charInfo.getTextureCoords()[1].x;
         float uy1 = charInfo.getTextureCoords()[0].y;
 
@@ -263,10 +263,7 @@ public class FontBatch {
      */
     private void clear() {
 
-        for (int i = 0; i < vertices.length; i++) {
-
-            vertices[i] = 0;
-        }
+        Arrays.fill(vertices, 0);
         numVertices = 0;
     }
 

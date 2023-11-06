@@ -37,7 +37,7 @@ public class Window {
     /**
      * Maximum permitted frame rate.
      */
-    private int frameRateCap = 60;
+    private final int frameRateCap = 60;
 
 
     // WINDOW PROPERTIES
@@ -54,27 +54,27 @@ public class Window {
     /**
      * Window title.
      */
-    private String title = "Michael's Adventure";
+    private final String title = "Michael's Adventure";
 
     /**
      * Window background color (red component).
      */
-    private float r = 1.0f;
+    private final float r = 1.0f;
 
     /**
      * Window background color (green component).
      */
-    private float g = 1.0f;
+    private final float g = 1.0f;
 
     /**
      * Window background color (blue component).
      */
-    private float b = 1.0f;
+    private final float b = 1.0f;
 
     /**
      * Window background color (alpha component).
      */
-    private float a = 1.0f;
+    private final float a = 1.0f;
 
 
     // CONSTRUCTOR
@@ -235,10 +235,6 @@ public class Window {
             glfwSetWindowIcon(glfwWindow, icons);
 
             stbi_image_free(pixels);
-            memFree(bufferWidth);
-            memFree(bufferHeight);
-            memFree(bufferChannels);
-
         }
     }
 }

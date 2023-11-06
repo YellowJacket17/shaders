@@ -32,19 +32,9 @@ public class CFont {
     private String name;
 
     /**
-     * Width of rendered image containing all characters.
-     */
-    private int width;
-
-    /**
-     * Height of rendered image containing all characters.
-     */
-    private int height;
-
-    /**
      * Map to store information on all characters contained in this font.
      */
-    private HashMap<Integer, CharInfo> charMap = new HashMap<>();
+    private final HashMap<Integer, CharInfo> charMap = new HashMap<>();
 
     /**
      * Texture ID of rendered parent texture containing this font.
@@ -101,8 +91,8 @@ public class CFont {
         // Initialize fake image dimensions.
         int estimatedWidth = (int)Math.sqrt(font.getNumGlyphs()) * font.getSize()
                 + ((int)Math.sqrt(font.getNumGlyphs()) * spacingAdjustment);
-        width = 0;
-        height = fontMetrics.getHeight();
+        int width = 0;                                                                                                  // Width of rendered image containing all characters.
+        int height = fontMetrics.getHeight();                                                                           // Height of rendered image containing all characters.
         int x = 0;
         int y = fontMetrics.getHeight();
 
@@ -217,7 +207,7 @@ public class CFont {
         } catch (Exception e) {
 
             e.printStackTrace();
-            // TODO : Throw exception here.
+            // TODO : Throw specific exception here.
         }
         return null;
     }

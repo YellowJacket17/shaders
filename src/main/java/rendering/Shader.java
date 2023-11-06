@@ -217,6 +217,8 @@ public class Shader {
 
     /**
      * Loads this shader from file.
+     *
+     * @throws RuntimeException
      */
     private void load() {
 
@@ -254,9 +256,9 @@ public class Shader {
                 throw new IOException("Unexpected token '" + secondPattern + "' in " + filePath);
             }
 
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
-            // TODO : Replace with AssetLoadException.
+            // TODO : Throw more specific exception.
             throw new RuntimeException("Failed to open file for shader from " + filePath);
         }
     }
@@ -264,6 +266,8 @@ public class Shader {
 
     /**
      * Compiles and links this shader.
+     *
+     * @throws RuntimeException
      */
     private void compileAndLink() {
 
@@ -275,7 +279,7 @@ public class Shader {
         if (success == GL_FALSE) {                                                                                      // Check for compilation errors.
             int length = glGetShaderi(vertexId, GL_INFO_LOG_LENGTH);
             System.out.println(glGetShaderInfoLog(vertexId, length));
-            // TODO : Replace with more specific exception.
+            // TODO : Throw more specific exception.
             throw new RuntimeException("Failed to compile vertex shader from " + filePath);
         }
 
@@ -287,7 +291,7 @@ public class Shader {
         if (success == GL_FALSE) {                                                                                      // Check for compilation errors.
             int length = glGetShaderi(fragmentId, GL_INFO_LOG_LENGTH);
             System.out.println(glGetShaderInfoLog(fragmentId, length));
-            // TODO : Replace with more specific exception.
+            // TODO : Throw more specific exception.
             throw new RuntimeException("Failed to compile fragment shader from " + filePath);
         }
 
@@ -300,7 +304,7 @@ public class Shader {
         if (success == GL_FALSE) {
             int length = glGetProgrami(shaderProgramId, GL_INFO_LOG_LENGTH);
             System.out.println(glGetProgramInfoLog(shaderProgramId, length));
-            // TODO : Replace with more specific exception.
+            // TODO : Throw more specific exception.
             throw new RuntimeException("Failed to link shaders from " + filePath);
         }
     }
@@ -311,9 +315,9 @@ public class Shader {
      *
      * @param inputStream file input stream
      * @return file contents
-     * @throws IOException
+     * @throws RuntimeException
      */
-    private String readFromInputStream(InputStream inputStream) throws IOException {
+    private String readFromInputStream(InputStream inputStream) {
 
         StringBuilder resultStringBuilder = new StringBuilder();
 
@@ -328,7 +332,7 @@ public class Shader {
 
         } catch (Exception e) {
 
-            // TODO : Change to AssetLoadException.
+            // TODO : Throw more specific exception.
             throw new RuntimeException("Failed to load shader from " + filePath);
         }
         return resultStringBuilder.toString();

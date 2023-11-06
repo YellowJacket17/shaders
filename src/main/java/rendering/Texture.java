@@ -90,6 +90,8 @@ public class Texture {
 
     /**
      * Loads this texture from file and uploads it to the GPU.
+     *
+     * @throws RuntimeException
      */
     private void load() {
 
@@ -121,22 +123,19 @@ public class Texture {
                 glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, bufferWidth.get(0), bufferHeight.get(0),                        // Upload image to GPU.
                         0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
             } else {
-                // TODO : Replace with AssetLoadException.
+                // TODO : Throw more specific exception.
                 throw new RuntimeException("Unexpected number of channels (" + bufferChannels.get(0)
                         + ") in image for texture loaded from " + filePath);
             }
             nativeWidth = bufferWidth.get(0);
             nativeHeight = bufferHeight.get(0);
         } else {
-            // TODO : Replace with AssetLoadException.
+            // TODO : Throw more specific exception.
             throw new RuntimeException("Failed to load texture from " + filePath);
         }
 
         // Free memory.
         stbi_image_free(pixels);
-        memFree(bufferWidth);
-        memFree(bufferHeight);
-        memFree(bufferChannels);
     }
 
 
